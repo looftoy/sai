@@ -137,22 +137,28 @@ const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnYykBO8QrO0fX
 let PROPS = [];
 
 function parseCSV(csv){
-  const lines = csv.split('\n').filter(l=>l.trim());
-  const headers = lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
-  return lines.slice(1).map(line=>{
-    const values = [];
-    let cur='', inQ=false;
-    for(let i=0;i<line.length;i++){
-      const c=line[i];
-      if(c==='"'){ inQ=!inQ; }
-      else if(c===','&&!inQ){ values.push(cur.trim()); cur=''; }
-      else cur+=c;
+  // Tokenize respecting quoted fields (handles newlines and commas inside quotes)
+  const tokens=[], re=/("(?:[^"]|"")*"|[^,\r\n]*)(?:,|\r?\n|$)/g;
+  let m, headers=null, row=[], results=[];
+  while((m=re.exec(csv))!==null){
+    let val=m[1];
+    if(val.startsWith('"')&&val.endsWith('"')) val=val.slice(1,-1).replace(/""/g,'"');
+    val=val.trim();
+    row.push(val);
+    // detect end of row: next char is newline or end
+    const pos=m.index+m[0].length;
+    const next=csv[pos];
+    if(next==='\n'||next==='\r'||pos>=csv.length||m[0].endsWith('\n')||m[0].endsWith('\r\n')){
+      if(!headers){ headers=row.map(h=>h.toLowerCase().trim()); }
+      else if(row.some(v=>v)){
+        const obj={};
+        headers.forEach((h,i)=>obj[h]=row[i]||'');
+        results.push(obj);
+      }
+      row=[];
     }
-    values.push(cur.trim());
-    const obj={};
-    headers.forEach((h,i)=>obj[h]=(values[i]||'').replace(/^"|"$/g,''));
-    return obj;
-  });
+  }
+  return results;
 }
 
 function mapRow(r){
