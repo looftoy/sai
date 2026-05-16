@@ -137,26 +137,31 @@ const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRxZB9OfimtJE4l
 let PROPS = [];
 
 function parseCSV(csv){
-  // Tokenize respecting quoted fields (handles newlines and commas inside quotes)
-  const tokens=[], re=/("(?:[^"]|"")*"|[^,\r\n]*)(?:,|\r?\n|$)/g;
-  let m, headers=null, row=[], results=[];
-  while((m=re.exec(csv))!==null){
-    let val=m[1];
-    if(val.startsWith('"')&&val.endsWith('"')) val=val.slice(1,-1).replace(/""/g,'"');
-    val=val.trim();
-    row.push(val);
-    // detect end of row: next char is newline or end
-    const pos=m.index+m[0].length;
-    const next=csv[pos];
-    if(next==='\n'||next==='\r'||pos>=csv.length||m[0].endsWith('\n')||m[0].endsWith('\r\n')){
-      if(!headers){ headers=row.map(h=>h.toLowerCase().trim()); }
-      else if(row.some(v=>v)){
-        const obj={};
-        headers.forEach((h,i)=>obj[h]=row[i]||'');
-        results.push(obj);
-      }
-      row=[];
+  csv = csv.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  const results=[], lines=[];
+  let cur='', inQ=false;
+  for(let i=0;i<csv.length;i++){
+    const c=csv[i];
+    if(c==='"'){ inQ=!inQ; }
+    else if(c==='\n'&&!inQ){ lines.push(cur); cur=''; }
+    else cur+=c;
+  }
+  if(cur) lines.push(cur);
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  for(let i=1;i<lines.length;i++){
+    const line=lines[i]; if(!line.trim()) continue;
+    const values=[], chars=line.split('');
+    let val='', q=false;
+    for(let j=0;j<chars.length;j++){
+      const c=chars[j];
+      if(c==='"'){ q=!q; }
+      else if(c===','&&!q){ values.push(val.trim()); val=''; }
+      else val+=c;
     }
+    values.push(val.trim());
+    const obj={};
+    headers.forEach((h,k)=>obj[h]=values[k]||'');
+    results.push(obj);
   }
   return results;
 }
