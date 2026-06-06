@@ -131,27 +131,7 @@ async function buscarCupon() {
   document.getElementById('result').style.display = 'none';
 
   try {
-    // Buscar el archivo en Drive por nombre dentro de la carpeta CUPONES
     const folderId = CONFIG.cupones_folder_id;
-    const query = encodeURIComponent(`name='${nomPdf}' and '${folderId}' in parents and trashed=false`);
-    const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size)&key=AIzaSyPublicAPIKey`;
-
-    // Usar la API pública de Drive (sin autenticación, carpeta pública)
-    const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,size)`;
-    const resp = await fetch(apiUrl, {
-      headers: { 'Authorization': 'Bearer anonymous' }
-    });
-
-    // Como la carpeta es pública, usamos webContentLink directo
-    // Armamos la URL de descarga directa de Drive
-    // Buscamos via API pública sin key
-    const respPublic = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`,
-      { headers: {} }
-    );
-
-    // La API pública de Drive no requiere auth para carpetas públicas
-    // Usamos la búsqueda anónima
     const data = await buscarEnDrivePublico(folderId, nomPdf);
 
     if (data && data.id) {
@@ -177,16 +157,14 @@ async function buscarCupon() {
 }
 
 async function buscarEnDrivePublico(folderId, nomPdf) {
-  // Buscar en Drive usando la API con acceso público
+  const API_KEY = 'AIzaSyC4VsJFHao2NMrBN5TM3ZitUGBsvgbSGOg';
   const query = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
-  const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&pageSize=1000`;
+  const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&pageSize=500&key=${API_KEY}`;
 
   const resp = await fetch(url);
-  if (!resp.ok) throw new Error('Error API Drive');
+  if (!resp.ok) throw new Error('Error API Drive: ' + resp.status);
   const data = await resp.json();
   const files = data.files || [];
-
-  // Buscar el archivo que coincida (case-insensitive)
   const nomLower = nomPdf.toLowerCase();
   return files.find(f => f.name.toLowerCase() === nomLower) || null;
 }
