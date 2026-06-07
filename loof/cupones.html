@@ -48,15 +48,15 @@
 
 <div class="main">
   <div class="card">
-    <div class="card-title">Cupón de Pago</div>
-    <div class="card-sub">Ingrese sus datos para acceder a su cupón</div>
+    <div class="card-title">CUPON DE PAGO</div>
+    <div class="field">Ingrese sus datos para acceder a su cupón</div>
 
     <div class="field">
       <label>Número de Carpeta</label>
       <input type="text" id="nroc" placeholder="Ej: 001" maxlength="6">
     </div>
     <div class="field">
-      <label>DNI / Documento</label>
+      <label>DNI / Documento (sin puntos)</label>
       <input type="text" id="dni" placeholder="Ej: 12345678" maxlength="20">
     </div>
 
@@ -65,7 +65,7 @@
     <div class="msg" id="msg"></div>
 
     <div class="result" id="result">
-      <div class="result-title">Cupón encontrado</div>
+      <div class="field">Cupón encontrado</div>
       <a class="pdf-btn" id="pdfLink" href="#" target="_blank">
         <span class="pdf-icon">📄</span>
         <span>Ver / Descargar PDF</span>
@@ -92,7 +92,7 @@ async function cargarConfig() {
     CONFIG = await r.json();
     // Aplicar datos de la inmobiliaria
     document.getElementById('hdr-nombre').textContent = CONFIG.nombre || 'SAI+';
-    document.getElementById('hdr-sub').textContent = (CONFIG.ciudad || '') + (CONFIG.ciudad ? ' — ' : '') + 'Portal de Inquilinos';
+    document.getElementById('hdr-sub').textContent = (CONFIG.ciudad || '') + (CONFIG.ciudad ? ' - ' : '') + 'Portal de Inquilinos';
     document.title = (CONFIG.nombre || 'SAI+') + ' — Cupones de Pago';
     // Footer
     let contacto = [];
@@ -140,8 +140,8 @@ async function buscarCupon() {
 
       document.getElementById('pdfLink').href = pdfUrl;
       document.getElementById('infoBox').innerHTML =
-        `<strong>Carpeta #${nroc3}</strong> — Documento: ${dniRaw}<br>` +
-        `<a href="${dlUrl}" style="color:var(--gold);text-decoration:none;font-size:.65rem;letter-spacing:.1em;">⬇ Descargar PDF</a>`;
+        `<strong>Carpeta #${nroc3} - Documento: ${dniRaw}</strong><br>` +
+        `<a href="${dlUrl}" style="color:var(--gold);text-decoration:none;font-size:.65rem;letter-spacing:.1em;">▼ Descargar PDF</a>`;
 
       ocultarMsg();
       document.getElementById('result').style.display = 'block';
