@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotizacion de Monedas</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #ddeed7 0%, #ddeed7 100%);
+        padding: 14px;
+        min-height: 100vh;
+    }
+    header { background: #45c47a; color: white; padding: 15px; text-align: center; }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #bcdeb0;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    th, td {
+        padding: 4px 20px;
+        text-align: Center;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+        background: #dfe2e6;
+        color: #535ca3;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .cards-container {
+        padding: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 7px;
+    }
+    .dolar-card {
+        background: white;
+        padding: 8px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: transform 0.2s;
+    }
+    .dolar-card:hover { transform: translateY(-5px); }
+    .ars        { font-size: 0.6em; font-weight: bold; color: #9a9a9a; }
+    .usd        { font-size: 0.6em; font-weight: bold; color: #9a9a9a; }
+    .pts        { font-size: 0.6em; font-weight: bold; color: #9a9a9a; }
+    .guion      { font-weight: bold; color: #9a9a9a; }
+    .precio     { font-size: 1.2em; font-weight: bold; color: #333; }
+    .precio-usd { font-size: 0.85em; color: #888; margin-top: 4px; }
+    .pre-verde  { color: #109011; }
+    .pre-rojo   { color: #ff0000; }
+    .pre-negro  { color: #404040; }
+    .etiqueta   { font-size: 0.9em; color: #666; margin-top: 5px; }
+    .fecha      { font-size: 0.8em; color: #888; margin-top: 10px; }
+    .error      { color: #ef4444; text-align: center; padding: 40px; }
+    .oficial    { border-top: 4px solid #00b954; }
+    .blue       { border-top: 4px solid #007fff; }
+    .bolsa      { border-top: 4px solid #a7a7a7; }
+    .ccl        { border-top: 4px solid #a7a7a7; }
+    .mayorista  { border-top: 4px solid #a7a7a7; }
+    .cripto     { border-top: 4px solid #a7a7a7; }
+    .tarjeta    { border-top: 4px solid #a7a7a7; }
+    .euro       { border-top: 4px solid #b30000; }
+    .real       { border-top: 4px solid #a7a7a7; }
+    .chil       { border-top: 4px solid #a7a7a7; }
+    .urug       { border-top: 4px solid #a7a7a7; }
+    .btc        { border-top: 4px solid #ffa500; }
+    .eth        { border-top: 4px solid #ffa500; }
+    .xrp        { border-top: 4px solid #ffa500; }
+    .r-pais     { border-top: 4px solid #ff2a2a; }
+    .var-pos    { color: #ff0000; }
+    .var-neg    { color: #109011; }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <header><h3>Cotizacion de Monedas y Riesgo Pais (Argentina)</h3>
+    </header>
+
+    <div class="cards-container" id="cards-container"></div>
+</div>
+<script>
+    async function obtenerCotizaciones() {
+        const contenedor = document.getElementById('cards-container');
+        contenedor.innerHTML = '<p>Cargando datos...</p>';
+
+        try {
+            const [resDolares, resEuro, resReal, resChil, resUrug, resCripto, resRiesgo] = await Promise.all([
+                fetch('https://dolarapi.com/v1/dolares'),
+                fetch('https://dolarapi.com/v1/cotizaciones/eur'),
+                fetch('https://dolarapi.com/v1/cotizaciones/brl'),
+                fetch('https://dolarapi.com/v1/cotizaciones/clp'),
+                fetch('https://dolarapi.com/v1/cotizaciones/uyu'),
+                fetch('https://api.coinlore.net/api/ticker/?id=90,80,58'),
+                fetch('https://mercados.ambito.com/riesgopais/variacion-ultimo')
+            ]);
+
+            const dolares = await resDolares.json();
+            const euro    = await resEuro.json();
+            const real    = await resReal.json();
+            const chil    = await resChil.json();
+            const urug    = await resUrug.json();
+            const cripto  = await resCripto.json();
+            const riesgo  = await resRiesgo.json();
+
+            contenedor.innerHTML = '';
+
+            // === DOLARES ===
+            dolares.forEach(dolar => {
+                const nombreAmigable = {
+                    'Oficial': 'Dolar Oficial',
+                    'Blue': 'Dolar Blue',
+                    'Bolsa': 'Dolar Bolsa',
+                    'Contado con liquidacion': 'Dolar CCL',
+                    'Mayorista': 'Dolar Mayorista',
+                    'Cripto': 'Dolar Cripto',
+                    'Tarjeta': 'Dolar Tarjeta'
+                }[dolar.nombre] || dolar.nombre;
+
+                const claseColor = {
+                    'oficial': 'oficial', 'blue': 'blue', 'bolsa': 'bolsa',
+                    'contadoconliqui': 'ccl', 'mayorista': 'mayorista',
+                    'cripto': 'cripto', 'tarjeta': 'tarjeta'
+                }[dolar.casa] || '';
+
+                const fechaFormateada = new Date(dolar.fechaActualizacion).toLocaleString('es-AR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+                const tarjeta = document.createElement('div');
+                tarjeta.className = `dolar-card ${claseColor}`;
+                tarjeta.innerHTML = `
+                    <h4>${nombreAmigable}</h4>
+                    <div class="precio">
+                        <span class="pre-verde">${dolar.compra.toFixed(1).replace('.', ',')}</span>
+                        <span class="guion"> - </span>
+                        <span class="pre-rojo">${dolar.venta.toFixed(1).replace('.', ',')}
+                        <span class="pts">Ars</span></span>
+                    </div>
+                    <div class="fecha">${fechaFormateada}</div>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+
+            // === EURO OFICIAL ===
+            const fechaEuro = new Date(euro.fechaActualizacion).toLocaleString('es-AR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            const tarjetaEuro = document.createElement('div');
+            tarjetaEuro.className = 'dolar-card euro';
+            tarjetaEuro.innerHTML = `
+                <h4>Euro Oficial</h4>
+                <div class="precio">
+                    <span class="pre-verde">${euro.compra.toFixed(1).replace('.', ',')}</span>
+                    <span class="guion"> - </span>
+                    <span class="pre-rojo">${euro.venta.toFixed(1).replace('.', ',')}
+                    <span class="pts">Ars</span></span>
+                </div>
+                <div class="fecha">${fechaEuro}</div>
+            `;
+            contenedor.appendChild(tarjetaEuro);
+
+            // === RIESGO PAIS ===
+            const valorRiesgo = riesgo.valor ?? riesgo.ultimo ?? riesgo.value ?? Object.values(riesgo)[0];
+            const variacionRiesgo = riesgo.variacion ?? riesgo.var ?? '';
+            const fechaRiesgo = riesgo.fecha.replace(/-/g, '/');
+
+            const varNum = parseFloat(String(variacionRiesgo).replace(',', '.'));
+            const varClase = varNum > 0 ? 'var-pos' : varNum < 0 ? 'var-neg' : '';
+            const varFlecha = varNum > 0 ? '▲' : varNum < 0 ? '▼' : '';
+
+            const tarjetaRiesgo = document.createElement('div');
+            tarjetaRiesgo.className = 'dolar-card r-pais';
+            tarjetaRiesgo.innerHTML = `
+                <h4>Riesgo Pais</h4>
+                <div class="precio">
+                    <span class="pre-negro">${Number(valorRiesgo).toLocaleString('es-AR')}</span>
+                    <span class="pts">Pts</span>
+                    <span class="precio-usd ${varClase}" style="font-size: 0.7em; margin-top: 4px;">${varFlecha} ${variacionRiesgo}</span>
+                </div>
+                <div class="fecha">${fechaRiesgo}</div>
+            `;
+            contenedor.appendChild(tarjetaRiesgo);
+
+            // === REAL, PESO CHILENO, PESO URUGUAYO ===
+            const monedas = [
+                { data: real, nombre: "Real Brasileno",  clase: "real", decimals: 2 },
+                { data: chil, nombre: "Peso Chileno",    clase: "chil", decimals: 3 },
+                { data: urug, nombre: "Peso Uruguayo",   clase: "urug", decimals: 3 }
+            ];
+
+            monedas.forEach(m => {
+                const fecha = new Date(m.data.fechaActualizacion).toLocaleString('es-AR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                const tarjeta = document.createElement('div');
+                tarjeta.className = `dolar-card ${m.clase}`;
+                tarjeta.innerHTML = `
+                    <h4>${m.nombre}</h4>
+                    <div class="precio">
+                        <span class="pre-verde">${m.data.compra.toFixed(m.decimals).replace('.', ',')}</span>
+                        <span class="guion"> - </span>
+                        <span class="pre-rojo">${m.data.venta.toFixed(m.decimals).replace('.', ',')}
+                        <span class="pts">Ars</span></span>
+                    </div>
+                    <div class="fecha">${fecha}</div>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+
+            // === CRIPTOMONEDAS via CoinLore ===
+            const criptoInfo = {
+                'BTC': { nombre: 'BTC - Bitcoin', clase: 'btc' },
+                'ETH': { nombre: 'ETH - Ethereum', clase: 'eth' },
+                'XRP': { nombre: 'XRP - Ripple',   clase: 'xrp' }
+            };
+
+            const ahora = new Date().toLocaleString('es-AR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            cripto.forEach(coin => {
+                const sym = coin.symbol;
+                const info = criptoInfo[sym];
+                if (!info) return;
+
+                const precio = parseFloat(coin.price_usd);
+                const decimales = sym === 'XRP' ? 4 : 2;
+
+                const tarjeta = document.createElement('div');
+                tarjeta.className = `dolar-card ${info.clase}`;
+                tarjeta.innerHTML = `
+                    <h4>${info.nombre}</h4>
+                    <div class="precio">
+                        <span class="pre-negro">${precio.toLocaleString('es-AR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })}
+                        <span class="pts">Usd</span></span>
+                    </div>
+                    <div class="fecha">${ahora}</div>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+
+        } catch (error) {
+            contenedor.innerHTML = `<p class="error">Error al cargar los datos: ${error.message}</p>`;
+            console.error(error);
+        }
+    }
+    window.onload = obtenerCotizaciones;
+</script>
+</body>
+</html>
