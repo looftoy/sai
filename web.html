@@ -80,7 +80,6 @@
     <button class="fb" data-f="op" data-v="PREVENTA">Preventa</button>
     <button class="fb" data-f="op" data-v="EN ALQUILER">Alquiler</button>
     <button class="fb" data-f="op" data-v="TEMPORADA">Temporada</button>
-    <button class="fb" data-f="op" data-v="RESERVADO">Reservado</button>
   </div>
 
 </div>
@@ -253,8 +252,10 @@ function initGal(card, photos, ref){
 function render(){
   const grid=document.getElementById('grid');
   const nores=document.getElementById('nores');
+  const OPS_VALIDAS = ['EN VENTA','PREVENTA','EN ALQUILER','TEMPORADA'];
   const filtered=PROPS.filter(p=>{
     if(p.ref==='9999') return false;
+    if(!OPS_VALIDAS.includes(p.op)) return false;
     return activeOp==='TODOS'||p.op===activeOp;
   }).sort((a,b)=>{
     const opA=String(a.op||'').toUpperCase(), opB=String(b.op||'').toUpperCase();
