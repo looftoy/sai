@@ -166,6 +166,11 @@ function parseCSV(csv){
 }
 
 function mapRow(r){
+  const fotos=[];
+  for(let i=1;i<=10;i++){
+    const id=(r[`foto${i}`]||'').trim();
+    if(id) fotos.push(`https://drive.google.com/thumbnail?id=${id}&sz=w800`);
+  }
   return {
     ref:       r.ref||r.nro||'',
     nombre:    r.nombre||r.calle||'',
@@ -182,7 +187,8 @@ function mapRow(r){
     supconst:  r.supconst||'',
     suplote:   r.suplote||'',
     garajepla: r.garajepla||'',
-    gdrive:    r.gdrive||''
+    gdrive:    r.gdrive||'',
+    fotos:     fotos
   };
 }
 
@@ -304,7 +310,7 @@ function render(){
     </div>`).join('');
 
   filtered.forEach(p=>{
-    const photos=FOTOS[p.ref]||[SINFOTO];
+    const photos=p.fotos.length?p.fotos:(FOTOS[p.ref]||[SINFOTO]);
     const card=document.querySelector(`[data-ref="${p.ref}"]`);
     if(card) initGal(card,photos,p.ref);
   });
