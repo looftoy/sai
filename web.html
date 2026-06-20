@@ -194,7 +194,7 @@ function mapRow(r){
 
 async function cargarCSV(){
   const grid=document.getElementById('grid');
-  grid.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);letter-spacing:.2em;font-size:.75rem">CARGANDO PROPIEDADES...</p>';
+  grid.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:40px;color:#4D9C00;letter-spacing:.2em;font-size:1rem;font-weight:700">⟳ CARGANDO PROPIEDADES...</p>';
   try{
     const res=await fetch(CSV_URL);
     const text=await res.text();
