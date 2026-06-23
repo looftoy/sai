@@ -107,10 +107,9 @@
     <div id="ftr-nombre"></div>
     <div id="ftr-leyenda"></div>
     <div id="ftr-social"></div>
-    <div class="powered">Powered by <a href="https://looftoy.github.io" target="_blank">SAI+ Software Inmobiliario</a></div>
+    <div class="powered">Powered by <a href="https://6925182ce1ad6.site123.me/" target="_blank">SAI+ Software Inmobiliario</a></div>
   </div>
   <div class="footer-right">
-    <div>CONTACTO:</div>
     <div id="ftr-dir"></div>
     <div id="ftr-ciudad"></div>
     <div id="ftr-email"></div>
@@ -393,10 +392,16 @@ async function cargarEmpresa(){
     // Footer
     document.getElementById('ftr-nombre').textContent = e.nombre || '';
     document.getElementById('ftr-leyenda').textContent = e.leyenda || '';
-    if(e.face||e.insta) document.getElementById('ftr-social').innerHTML = (e.insta?`<a href="${e.insta}" target="_blank">Instagram</a> `:'') + (e.face?`<a href="${e.face}" target="_blank">Facebook</a>`:'');
+    if (e.face || e.insta || e.tiktok) {
+    let html = '';
+    if (e.insta)  html += `<a href="${e.insta}" target="_blank"><i class="fab fa-instagram"></i></a> `;
+    if (e.face)   html += `<a href="${e.face}" target="_blank"><i class="fab fa-facebook"></i></a> `;
+    if (e.tiktok) html += `<a href="${e.tiktok}" target="_blank"><i class="fab fa-tiktok"></i></a>`;
+    document.getElementById('ftr-social').innerHTML = html;
+    }
     if(e.direccion) document.getElementById('ftr-dir').innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(e.direccion+' '+e.ciudad)}" target="_blank">${e.direccion}</a>`;
     if(e.cp||e.ciudad||e.pais) document.getElementById('ftr-ciudad').textContent = [e.cp,e.ciudad,e.pais].filter(Boolean).join(' · ');
-    if(e.email) document.getElementById('ftr-email').innerHTML = `<a href="mailto:${e.email.toLowerCase()}">${e.email.toLowerCase()}</a>`;
+    if(e.email) document.getElementById('ftr-email').innerHTML = `<a href="mailto:${e.email.toLowerCase()}" style="text-transform: lowercase;">${e.email.toLowerCase()}</a>`;
     if(e.tel) document.getElementById('ftr-tel').textContent = `Tel: ${e.tel}`;
     if(e.cel) document.getElementById('ftr-cel').innerHTML = `<a href="https://wa.me/${e.cel.replace(/\D/g,'')}" target="_blank">Cel: ${e.cel}</a>`;
     document.body.style.marginBottom = '1.2em';
