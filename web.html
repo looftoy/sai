@@ -15,10 +15,10 @@
   body{background:var(--dark);color:var(--text);font-family:'Montserrat',sans-serif;font-weight:300}
   .header{text-align:center;padding:16px 24px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0a0a0a 0%,var(--dark) 100%);position:relative}
   .logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
-  .sub{font-size:.7rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-top:5px}
+  .sub{font-size:.7rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;margin-top:5px}
   .social-bar{display:flex;justify-content:center;gap:14px;margin-top:8px}
-  .soc-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;transition:opacity .2s;opacity:.5}
-  .soc-icon:hover{opacity:.5}
+  .soc-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;transition:opacity .2s;opacity:.7}
+  .soc-icon:hover{opacity:1}
   .soc-icon svg{width:18px;height:18px}
   .filters{display:flex;flex-wrap:wrap;gap:8px;padding:12px 18px;background:var(--dark2);border-bottom:1px solid var(--border);justify-content:center}
   .fg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -395,10 +395,10 @@ async function cargarEmpresa(){
     if(e.face||e.insta) document.getElementById('ftr-social').innerHTML = (e.insta?`<a href="${e.insta}" target="_blank">Instagram</a> `:'') + (e.face?`<a href="${e.face}" target="_blank">Facebook</a>`:'');
     if(e.direccion) document.getElementById('ftr-dir').innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(e.direccion+' '+e.ciudad)}" target="_blank">${e.direccion}</a>`;
     if(e.cp||e.ciudad||e.pais) document.getElementById('ftr-ciudad').textContent = [e.cp,e.ciudad,e.pais].filter(Boolean).join(' · ');
-    if(e.email) document.getElementById('ftr-email').innerHTML = `<a href="mailto:${e.email}">${e.email}</a>`;
+    if(e.email) document.getElementById('ftr-email').innerHTML = `<a href="mailto:${e.email.toLowerCase()}">${e.email.toLowerCase()}</a>`;
     if(e.tel) document.getElementById('ftr-tel').textContent = `Tel: ${e.tel}`;
     if(e.cel) document.getElementById('ftr-cel').innerHTML = `<a href="https://wa.me/${e.cel.replace(/\D/g,'')}" target="_blank">Cel: ${e.cel}</a>`;
-    document.body.style.marginBottom = '2.5em';
+    document.body.style.marginBottom = '1.5em';
   } catch(err){ console.warn('No se pudo cargar empresa:', err); }
 }
 
