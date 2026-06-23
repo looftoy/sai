@@ -369,7 +369,7 @@ window.EMPRESA_CEL = '';
 async function cargarEmpresa(){
   try{
     // Leer hoja empresa del Sheet
-    const res = await fetch(`https://docs.google.com/spreadsheets/d/1OVnZmeSjDp5uuJJ5QychQ22QbeZp8l8XmxFa3ZV7cnw/gviz/tq?tqx=out:csv&sheet=empresa`);
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRiF6w8XgTuNuvjyr-hobFeQgzo3FhRzndplNQAY9QMWHDpUwf6Ct6yOk09x_S3gYofjNs_f1irzzea/pub?gid=303834842&single=true&output=csv`);
     const text = await res.text();
     const rows = parseCSV(text);
     if(!rows.length) return;
@@ -402,8 +402,7 @@ async function cargarEmpresa(){
   } catch(err){ console.warn('No se pudo cargar empresa:', err); }
 }
 
-cargarEmpresa();
-cargarCSV();
+cargarEmpresa().then(()=>cargarCSV());
 </script>
 </body>
 </html>
