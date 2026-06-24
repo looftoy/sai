@@ -328,7 +328,14 @@ function render(){
           <div>
             ${p.preciox==='CONSULTAR'
               ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#39ff14;display:inline-block">CONSULTE PRECIO</span>`
-              : `<span class="pa"><span style="font-size:1rem;vertical-align:middle">${p.moneda}</span> ${fp(p.precio)}</span>${p.preciox==='REBAJADO'?` <span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#ff1744;display:inline-block">REBAJADO</span>`:''}`
+              : (()=>{
+                  const pxMap={'X DIA':'POR DIA','X SEMANA':'POR SEMANA','X QUINCENA':'POR QUINCENA','X MES':'POR MES','POR MES':'POR MES','X AÑO':'POR AÑO','POR AÑO':'POR AÑO'};
+                  const pxLabel = pxMap[p.preciox]||null;
+                  const extra = p.preciox==='REBAJADO'
+                    ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#ff1744;display:inline-block">REBAJADO</span>`
+                    : pxLabel ? `<span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#2e7d32;display:inline-block">${pxLabel}</span>` : '';
+                  return `<span class="pa"><span style="font-size:1rem;vertical-align:middle">${p.moneda}</span> ${fp(p.precio)}</span>${extra?' '+extra:''}`;
+                })()
             }
           </div>
           <div style="display:flex;align-items:stretch;gap:6px">${(()=>{
