@@ -39,7 +39,7 @@
   .gslides{display:flex;height:100%;transition:transform .35s ease}
   .gslide{min-width:100%;height:100%;background:var(--dark3);overflow:hidden}
   .gslide img{width:100%;height:100%;object-fit:cover;display:block}
-  .gprev,.gnext{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:var(--gold);border:none;width:26px;height:40px;font-size:2.5rem;padding-bottom:7px;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+  .gprev,.gnext{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:var(--gold);border:none;width:26px;height:40px;font-size:2.5rem;padding-bottom:7px;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;opacity:0.8;transition:opacity .2s}
   .gprev{left:0;border-radius:0 2px 2px 0}
   .gnext{right:0;border-radius:2px 0 0 2px}
   .card:hover .gprev,.card:hover .gnext{opacity:1}
@@ -311,7 +311,7 @@ function render(){
           <div class="gctr"></div>
         </div>
         <div class="ob" style="background:${OP_COLOR[p.op]||'#555'}">${p.op}</div>
-        <div class="cb" style="background:${CAT_COLOR[p.cat]||'#555'};color:#fff">${p.cat}</div>
+        ${p.op==='TEMPORADA'?`<div class="cb" style="background:${CAT_COLOR[p.cat]||'#555'};color:#fff">${p.cat}</div>`:''}
       </div>
       <div class="cbody">
         <div class="cref"># ${p.ref} · ${p.tipo}</div>
@@ -331,7 +331,7 @@ function render(){
               : `<span class="pa"><span style="font-size:1rem;vertical-align:middle">${p.moneda}</span> ${fp(p.precio)}</span>${p.preciox==='REBAJADO'?` <span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#ff1744;display:inline-block">REBAJADO</span>`:''}`
             }
           </div>
-          <div style="display:flex;align-items:stretch;gap:2px">${(()=>{
+          <div style="display:flex;align-items:stretch;gap:6px">${(()=>{
             const cel = window.EMPRESA_CEL||'';
             if(!cel) return '';
             const txt = encodeURIComponent(`Hola, vi esta propiedad en el sitio web de la inmobiliaria y quiero que me contacten. Gracias!\n# ${p.ref} - ${p.nombre}${p.gdrive?'\n'+p.gdrive:''}`);
@@ -382,9 +382,9 @@ async function cargarEmpresa(){
     // Iconos sociales
     const sb = document.getElementById('social-bar');
     sb.innerHTML = '';
-    if(e.insta) sb.innerHTML += `<a class="soc-icon" href="${e.insta}" target="_blank" title="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#C13584" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="#C13584" stroke="none"/></svg></a>`;
-    if(e.face) sb.innerHTML += `<a class="soc-icon" href="${e.face}" target="_blank" title="Facebook"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`;
-    if(e.tiktok) sb.innerHTML += `<a class="soc-icon" href="${e.tiktok}" target="_blank" title="TikTok"><svg viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg></a>`;
+    if(e.insta) sb.innerHTML += `<a class="soc-icon" href="${/^https?:\/\//.test(e.insta)?e.insta:'https://'+e.insta}" target="_blank" title="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#C13584" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="#C13584" stroke="none"/></svg></a>`;
+    if(e.face) sb.innerHTML += `<a class="soc-icon" href="${/^https?:\/\//.test(e.face)?e.face:'https://'+e.face}" target="_blank" title="Facebook"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`;
+    if(e.tiktok) sb.innerHTML += `<a class="soc-icon" href="${/^https?:\/\//.test(e.tiktok)?e.tiktok:'https://'+e.tiktok}" target="_blank" title="TikTok"><svg viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg></a>`;
 
     // Guardar cel para botón WP
     window.EMPRESA_CEL = e.cel || '';
