@@ -120,12 +120,9 @@
   <div class="sub" id="hdr-leyenda">Software Inmobiliario</div>
   <div class="social-bar" id="social-bar"></div>
 </div>
-<div class="filters" id="filters" style="justify-content:space-between">
-  <div style="display:flex;align-items:center;gap:10px">
-    <button class="btn-abrir-buscar" onclick="abrirBuscador()">&#128269; BUSCAR PROPIEDADES</button>
-    <span class="resultado-cnt" id="resultado-cnt"></span>
-  </div>
-  <button class="fb active" id="btn-todas" onclick="limpiarBusqueda()">VER DESTACADAS</button>
+<div class="filters" id="filters" style="justify-content:center">
+  <button class="btn-abrir-buscar" onclick="abrirBuscador()">&#128269; BUSCAR PROPIEDADES</button>
+</div>
 </div>
 <div class="bar">
   <span><span id="cnt">0</span> PROPIEDADES</span>
@@ -357,8 +354,7 @@ function render(){
     return parseFloat(b.precio||0)-parseFloat(a.precio||0);
   });
   document.getElementById('cnt').textContent=filtered.length;
-  const cntEl=document.getElementById('resultado-cnt');
-  if(cntEl) cntEl.textContent=filtered.length ? filtered.length+' propiedad'+(filtered.length>1?'es':'') : '';
+
   if(!filtered.length){ grid.innerHTML=''; nores.style.display='block'; return; }
   nores.style.display='none';
   grid.innerHTML=filtered.map((p,i)=>`
@@ -477,8 +473,43 @@ async function cargarEmpresa(){
   } catch(err){ console.warn('No se pudo cargar empresa:', err); }
 }
 
-function limpiarBusqueda(){modoDestacadas=true;filtrosActivos=null;render();}
+window.limpiarBusqueda = function limpiarBusqueda(){modoDestacadas=true;filtrosActivos=null;render();}
 cargarEmpresa().then(()=>cargarCSV());
+
+// ── BUSCADOR ────────────────────────────────────────────────────────────
+const TIPO_MAP_B={"APTO": "APARTAMENTO", "APTO ATICO": "APARTAMENTO", "APTO BAJOS": "APARTAMENTO", "APTO DUPLEX": "APARTAMENTO", "APTO ESCALERA": "APARTAMENTO", "APTO EXCLUSIVO": "APARTAMENTO", "APTO HABITACION": "APARTAMENTO", "APTO LOFT": "APARTAMENTO", "APTO PASILLO": "APARTAMENTO", "APTO PISO": "APARTAMENTO", "APTO SEMIPISO": "APARTAMENTO", "APTO VACACIONES": "APARTAMENTO", "CASA": "CASA", "CASA ADOSADA": "CASA", "CASA CABAÑA": "CASA", "CASA CAMPO": "CASA", "CASA CHALET": "CASA", "CASA CON GALPON": "CASA", "CASA CON LOCAL": "CASA", "CASA CONTAINER": "CASA", "CASA COUNTRY": "CASA", "CASA HABITACION": "CASA", "CASA INTERNA": "CASA", "CASA MASIA": "CASA", "CASA MINIMALISTA": "CASA", "CASA MONTAÑA": "CASA", "CASA PAREADA": "CASA", "CASA PASIILLO": "CASA", "CASA PLANTA ALTA": "CASA", "CASA PLANTA BAJA": "CASA", "CASA PREFABRICADA": "CASA", "CASA TORRE": "CASA", "CASA VACACIONES": "CASA", "CASA VILLA": "CASA", "CAMPO": "TERRENO", "CAMPO AGRICOLA": "TERRENO", "CAMPO GANADERO": "TERRENO", "CAMPO MIXTO": "TERRENO", "CHACRA": "TERRENO", "ESTANCIA": "TERRENO", "FRACCION": "TERRENO", "LOTE": "TERRENO", "LOTEO": "TERRENO", "PARCELA": "TERRENO", "SOLAR": "TERRENO", "TERRENO": "TERRENO", "FONDO COMERCIO": "LOCAL", "LOCAL": "LOCAL", "SALON": "LOCAL", "TRASPASO COMERCIO": "LOCAL", "OFICINA": "OFICINA", "CABAÑAS": "EDIFICIO", "EDIFICIO": "EDIFICIO", "HABITACION": "EDIFICIO", "HOSTEL": "EDIFICIO", "HOTEL": "EDIFICIO", "HOTEL APART": "EDIFICIO", "MOTEL": "EDIFICIO", "GALPON": "GALPON", "NAVE INDUSTRIAL": "GALPON", "PLANTA INDUSTRIAL": "GALPON", "COCHERA": "GARAGE", "GARAGE": "GARAGE", "PARKING": "GARAGE", "OTROS": "OTROS"};
+const TIPO_GRUPO_B={"APARTAMENTO": "Departamentos", "CASA": "Casas", "TERRENO": "Terrenos / Campos", "LOCAL": "Locales", "OFICINA": "Oficinas", "EDIFICIO": "Edificios", "GALPON": "Galpones", "GARAGE": "Garages", "OTROS": "Otros"};
+let modoDestacadas=true,filtrosActivos=null;
+function getTipoGrupo(t){return TIPO_MAP_B[t]||'OTROS';}
+window.abrirBuscador=function(){
+  const ciudades=[...new Set(PROPS.map(p=>p.ciudad).filter(Boolean))].sort();
+  const sel=document.getElementById('f-ciudad');
+  sel.innerHTML='<option value="">Todas</option>';
+  ciudades.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  const fc=document.getElementById('fc-tipo');
+  fc.innerHTML='';
+  Object.keys(TIPO_GRUPO_B).forEach(g=>{const lbl=document.createElement('label');lbl.className='fcheck';lbl.innerHTML=`<input type="checkbox" name="tipo" value="${g}"><span>${TIPO_GRUPO_B[g]}</span>`;fc.appendChild(lbl);});
+  document.getElementById('modal-buscar').classList.add('on');
+  document.body.style.overflow='hidden';
+};
+window.cerrarBuscador=function(){document.getElementById('modal-buscar').classList.remove('on');document.body.style.overflow='';};
+window.limpiarFiltros=function(){document.querySelectorAll('#modal-buscar input[type=checkbox]').forEach(c=>c.checked=false);['f-moneda','f-desde','f-hasta','f-ciudad'].forEach(id=>document.getElementById(id).value='');};
+window.limpiarBusqueda=function(){modoDestacadas=true;filtrosActivos=null;render();};
+window.ejecutarBusqueda=function(){
+  filtrosActivos={
+    tipos:[...document.querySelectorAll('input[name=tipo]:checked')].map(c=>c.value),
+    ops:[...document.querySelectorAll('input[name=op]:checked')].map(c=>c.value),
+    dorms:[...document.querySelectorAll('input[name=dorms]:checked')].map(c=>c.value),
+    moneda:document.getElementById('f-moneda').value,
+    desde:parseFloat(document.getElementById('f-desde').value)||0,
+    hasta:parseFloat(document.getElementById('f-hasta').value)||0,
+    ciudad:document.getElementById('f-ciudad').value
+  };
+  modoDestacadas=false;
+  window.cerrarBuscador();
+  render();
+};
+document.getElementById('modal-buscar').addEventListener('click',function(e){if(e.target===this)window.cerrarBuscador();});
 
 // ── LIGHTBOX ────────────────────────────────────────────────────────────
 let lbPhotos=[], lbIdx=0;
