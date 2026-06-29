@@ -78,6 +78,31 @@
   .powered{font-size:.5rem;color:var(--white);letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
   @media(max-width:480px){.logo{font-size:1.2rem}.grid{grid-template-columns:1fr}.footer{flex-direction:column}.footer-right{text-align:left}}
 
+  /* BUSCADOR MODAL */
+  #modal-buscar{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;align-items:center;justify-content:center}
+  #modal-buscar.on{display:flex}
+  .modal-box{background:#1a1a1a;border:1px solid var(--border);border-radius:12px;padding:28px;max-width:640px;width:90%;max-height:90vh;overflow-y:auto}
+  .modal-box h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);margin-bottom:20px;letter-spacing:.15em;text-transform:uppercase}
+  .modal-close{float:right;cursor:pointer;color:var(--muted);font-size:1.4rem;line-height:1;margin-top:-4px}
+  .modal-close:hover{color:#fff}
+  .fgroup{margin-bottom:18px}
+  .fgroup-title{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:700}
+  .fcheck-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .fcheck{display:flex;align-items:center;gap:5px;cursor:pointer}
+  .fcheck input{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
+  .fcheck span{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#ccc}
+  .fprice-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .fprice-row select,.fprice-row input{background:#111;border:1px solid var(--border);color:#ccc;padding:5px 8px;border-radius:2px;font-size:.7rem;font-family:'Montserrat',sans-serif}
+  .fprice-row input{width:120px}
+  .modal-btns{display:flex;gap:10px;margin-top:22px}
+  .btn-buscar{flex:1;padding:10px;background:var(--gold);color:#000;border:none;font-weight:700;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;border-radius:2px}
+  .btn-limpiar{padding:10px 16px;background:transparent;color:var(--muted);border:1px solid var(--border);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:2px}
+  .btn-limpiar:hover{border-color:#fff;color:#fff}
+  .btn-abrir-buscar{padding:6px 16px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s}
+  .btn-abrir-buscar:hover{background:var(--gold);color:#000}
+  .resultado-cnt{font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-left:8px}
+
+
   #lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column}
   #lb.on{display:flex}
   #lb-img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:4px}
@@ -226,6 +251,7 @@ function mapRow(r){
     garajepla: r.garajepla||'',
     gdrive:    r.gdrive||'',
     ocup:      (r.ocupacion||'').toUpperCase().trim(),
+    destaca:   (r.destaca||'').toUpperCase().trim(),
     fotos:     fotos
   };
 }
@@ -303,7 +329,30 @@ function render(){
   const filtered=PROPS.filter(p=>{
     if(p.ref==='9999') return false;
     if(!OPS_VALIDAS.includes(p.op)) return false;
-    return activeOp==='TODOS'||p.op===activeOp;
+
+    // Modo destacadas: solo las marcadas
+    if(modoDestacadas) return p.destaca==='SI';
+
+    // Modo búsqueda con filtros
+    if(filtrosActivos){
+      const f=filtrosActivos;
+      if(f.tipos.length && !f.tipos.includes(getTipoGrupo(p.tipo))) return false;
+      if(f.ops.length && !f.ops.includes(p.op)) return false;
+      if(f.dorms.length){
+        const d=p.dorms.toUpperCase();
+        const match = f.dorms.some(v=>{
+          if(v==='0') return d.includes('MONO');
+          if(v==='4') return d.startsWith('4')||d.startsWith('5')||d.startsWith('6')||d==='X DORMITORIOS';
+          return d.startsWith(v+' ');
+        });
+        if(!match) return false;
+      }
+      if(f.moneda && p.moneda!==f.moneda) return false;
+      if(f.desde>0 && parseFloat(p.precio)<f.desde) return false;
+      if(f.hasta>0 && parseFloat(p.precio)>f.hasta) return false;
+      if(f.ciudad && p.ciudad!==f.ciudad) return false;
+    }
+    return true;
   }).sort((a,b)=>{
     const opA=String(a.op||'').toUpperCase(), opB=String(b.op||'').toUpperCase();
     if(opA!==opB) return opA.localeCompare(opB);
@@ -312,6 +361,8 @@ function render(){
     return parseFloat(b.precio||0)-parseFloat(a.precio||0);
   });
   document.getElementById('cnt').textContent=filtered.length;
+  const cntEl=document.getElementById('resultado-cnt');
+  if(cntEl) cntEl.textContent=filtered.length ? filtered.length+' propiedad'+(filtered.length>1?'es':'') : '';
   if(!filtered.length){ grid.innerHTML=''; nores.style.display='block'; return; }
   nores.style.display='none';
   grid.innerHTML=filtered.map((p,i)=>`
@@ -475,6 +526,69 @@ document.addEventListener('keydown',function(e){
   <img id="lb-img" src="" alt="">
   <button id="lb-next" onclick="lbNav(1)">&#8250;</button>
   <div id="lb-cnt"></div>
+</div>
+
+
+<!-- MODAL BUSCADOR -->
+<div id="modal-buscar">
+<div class="modal-box">
+  <span class="modal-close" onclick="cerrarBuscador()">&#10005;</span>
+  <h3>Buscar Propiedades</h3>
+
+  <div class="fgroup">
+    <div class="fgroup-title">Tipo de Propiedad</div>
+    <div class="fcheck-grid" id="fc-tipo"></div>
+  </div>
+
+  <div class="fgroup">
+    <div class="fgroup-title">Operación</div>
+    <div class="fcheck-grid">
+      <label class="fcheck"><input type="checkbox" name="op" value="EN VENTA"><span>Venta</span></label>
+      <label class="fcheck"><input type="checkbox" name="op" value="PREVENTA"><span>Preventa</span></label>
+      <label class="fcheck"><input type="checkbox" name="op" value="EN ALQUILER"><span>Alquiler</span></label>
+      <label class="fcheck"><input type="checkbox" name="op" value="TEMPORADA"><span>Temporada</span></label>
+    </div>
+  </div>
+
+  <div class="fgroup">
+    <div class="fgroup-title">Dormitorios</div>
+    <div class="fcheck-grid">
+      <label class="fcheck"><input type="checkbox" name="dorms" value="0"><span>Monoambiente</span></label>
+      <label class="fcheck"><input type="checkbox" name="dorms" value="1"><span>1</span></label>
+      <label class="fcheck"><input type="checkbox" name="dorms" value="2"><span>2</span></label>
+      <label class="fcheck"><input type="checkbox" name="dorms" value="3"><span>3</span></label>
+      <label class="fcheck"><input type="checkbox" name="dorms" value="4"><span>4+</span></label>
+    </div>
+  </div>
+
+  <div class="fgroup">
+    <div class="fgroup-title">Precio</div>
+    <div class="fprice-row">
+      <select id="f-moneda">
+        <option value="">Moneda</option>
+        <option value="ARS">ARS</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+      </select>
+      <span style="color:var(--muted);font-size:.7rem">Desde</span>
+      <input type="number" id="f-desde" placeholder="0">
+      <span style="color:var(--muted);font-size:.7rem">Hasta</span>
+      <input type="number" id="f-hasta" placeholder="Sin límite">
+    </div>
+  </div>
+
+  <div class="fgroup">
+    <div class="fgroup-title">Ciudad</div>
+    <select id="f-ciudad" style="background:#111;border:1px solid var(--border);color:#ccc;padding:5px 8px;border-radius:2px;font-size:.7rem;font-family:'Montserrat',sans-serif;width:100%">
+      <option value="">Todas</option>
+    </select>
+  </div>
+
+  <div class="modal-btns">
+    <button class="btn-limpiar" onclick="limpiarFiltros()">Limpiar</button>
+    <button class="btn-buscar" onclick="ejecutarBusqueda()">&#128269; BUSCAR</button>
+  </div>
+</div>
 </div>
 
 </body>
