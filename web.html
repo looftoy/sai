@@ -120,16 +120,12 @@
   <div class="sub" id="hdr-leyenda">Software Inmobiliario</div>
   <div class="social-bar" id="social-bar"></div>
 </div>
-<div class="filters" id="filters">
-  <div class="fg">
-<!-- <span class="fl">Operación:</span> -->
-    <button class="fb active" data-f="op" data-v="TODOS">Todos</button>
-    <button class="fb" data-f="op" data-v="EN VENTA">Venta</button>
-    <button class="fb" data-f="op" data-v="PREVENTA">Preventa</button>
-    <button class="fb" data-f="op" data-v="EN ALQUILER">Alquiler</button>
-    <button class="fb" data-f="op" data-v="TEMPORADA">Temporada</button>
+<div class="filters" id="filters" style="justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="btn-abrir-buscar" onclick="abrirBuscador()">&#128269; BUSCAR PROPIEDADES</button>
+    <span class="resultado-cnt" id="resultado-cnt"></span>
   </div>
-
+  <button class="fb active" id="btn-todas" onclick="limpiarBusqueda()">VER DESTACADAS</button>
 </div>
 <div class="bar">
   <span><span id="cnt">0</span> PROPIEDADES</span>
@@ -251,7 +247,7 @@ function mapRow(r){
     garajepla: r.garajepla||'',
     gdrive:    r.gdrive||'',
     ocup:      (r.ocupacion||'').toUpperCase().trim(),
-    destaca:   (r.destaca||'').toUpperCase().trim(),
+    destaca:   (r.destaca||'').trim(),
     fotos:     fotos
   };
 }
@@ -331,7 +327,7 @@ function render(){
     if(!OPS_VALIDAS.includes(p.op)) return false;
 
     // Modo destacadas: solo las marcadas
-    if(modoDestacadas) return p.destaca==='SI';
+    if(modoDestacadas) return p.destaca.toUpperCase()==='SI'||p.destaca.toLowerCase()==='si';
 
     // Modo búsqueda con filtros
     if(filtrosActivos){
@@ -426,14 +422,7 @@ function render(){
 }
 
 // Filtros
-document.getElementById('filters').addEventListener('click',e=>{
-  const btn=e.target.closest('.fb'); if(!btn) return;
-  const f=btn.dataset.f, v=btn.dataset.v;
-  document.querySelectorAll(`[data-f="${f}"]`).forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if(f==='op') activeOp=v;
-  render();
-});
+// filtros por botones removidos - ahora usa modal buscador
 
 document.getElementById('rbtn').addEventListener('click',()=>cargarCSV());
 
@@ -488,6 +477,7 @@ async function cargarEmpresa(){
   } catch(err){ console.warn('No se pudo cargar empresa:', err); }
 }
 
+function limpiarBusqueda(){modoDestacadas=true;filtrosActivos=null;render();}
 cargarEmpresa().then(()=>cargarCSV());
 
 // ── LIGHTBOX ────────────────────────────────────────────────────────────
