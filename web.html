@@ -92,7 +92,8 @@
   .fcheck input{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
   .fcheck span{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#ccc}
   .fprice-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .fprice-row select,.fprice-row input{background:#111;border:1px solid var(--border);color:#ccc;padding:5px 8px;border-radius:2px;font-size:.7rem;font-family:'Montserrat',sans-serif}
+  .fprice-row input{background:#111;border:1px solid var(--border);color:#ccc;padding:5px 8px;border-radius:2px;font-size:.7rem;font-family:'Montserrat',sans-serif}
+  .fprice-row input::-webkit-outer-spin-button,.fprice-row input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .fprice-row input{width:120px}
   .modal-btns{display:flex;gap:10px;margin-top:22px}
   .btn-buscar{flex:1;padding:10px;background:var(--gold);color:#000;border:none;font-weight:700;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;border-radius:2px}
@@ -128,6 +129,7 @@
   <span><span id="cnt">0</span> PROPIEDADES</span>
   <button class="rbtn" id="rbtn">↻ ACTUALIZAR</button>
 </div>
+<div id="titulo-modo" style="text-align:center;padding:12px 0 4px;font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700">PROPIEDADES DESTACADAS</div>
 <div class="grid" id="grid"></div>
 <div class="nores" id="nores">No se encontraron propiedades</div>
 <div class="footer">
@@ -340,7 +342,7 @@ function render(){
         });
         if(!match) return false;
       }
-      if(f.moneda && p.moneda!==f.moneda) return false;
+      if(f.monedas&&f.monedas.length&&!f.monedas.includes(p.moneda)) return false;
       if(f.desde>0 && parseFloat(p.precio)<f.desde) return false;
       if(f.hasta>0 && parseFloat(p.precio)>f.hasta) return false;
       if(f.ciudad && p.ciudad!==f.ciudad) return false;
@@ -354,6 +356,8 @@ function render(){
     return parseFloat(b.precio||0)-parseFloat(a.precio||0);
   });
   document.getElementById('cnt').textContent=filtered.length;
+  const tmd=document.getElementById('titulo-modo');
+  if(tmd) tmd.textContent=modoDestacadas?'PROPIEDADES DESTACADAS':'RESULTADOS DE BÚSQUEDA';
 
   if(!filtered.length){ grid.innerHTML=''; nores.style.display='block'; return; }
   nores.style.display='none';
@@ -482,6 +486,11 @@ const TIPO_GRUPO_B={"APARTAMENTO": "Departamentos", "CASA": "Casas", "TERRENO": 
 let modoDestacadas=true,filtrosActivos=null;
 function getTipoGrupo(t){return TIPO_MAP_B[t]||'OTROS';}
 window.abrirBuscador=function(){
+  // Limpiar todos los checkboxes al abrir
+  document.querySelectorAll('#modal-buscar input[type=checkbox]').forEach(c=>c.checked=false);
+  document.getElementById('f-desde').value='';
+  document.getElementById('f-hasta').value='';
+  document.getElementById('f-ciudad').value='';
   const ciudades=[...new Set(PROPS.map(p=>p.ciudad).filter(Boolean))].sort();
   const sel=document.getElementById('f-ciudad');
   sel.innerHTML='<option value="">Todas</option>';
@@ -500,7 +509,7 @@ window.ejecutarBusqueda=function(){
     tipos:[...document.querySelectorAll('input[name=tipo]:checked')].map(c=>c.value),
     ops:[...document.querySelectorAll('input[name=op]:checked')].map(c=>c.value),
     dorms:[...document.querySelectorAll('input[name=dorms]:checked')].map(c=>c.value),
-    moneda:document.getElementById('f-moneda').value,
+    monedas:[...document.querySelectorAll('input[name=moneda]:checked')].map(c=>c.value),
     desde:parseFloat(document.getElementById('f-desde').value)||0,
     hasta:parseFloat(document.getElementById('f-hasta').value)||0,
     ciudad:document.getElementById('f-ciudad').value
@@ -584,17 +593,16 @@ document.addEventListener('keydown',function(e){
 
   <div class="fgroup">
     <div class="fgroup-title">Precio</div>
+    <div class="fcheck-grid" style="margin-bottom:8px">
+      <label class="fcheck"><input type="checkbox" name="moneda" value="USD"><span>USD</span></label>
+      <label class="fcheck"><input type="checkbox" name="moneda" value="ARS"><span>ARS</span></label>
+      <label class="fcheck"><input type="checkbox" name="moneda" value="EUR"><span>EUR</span></label>
+    </div>
     <div class="fprice-row">
-      <select id="f-moneda">
-        <option value="">Moneda</option>
-        <option value="ARS">ARS</option>
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-      </select>
       <span style="color:var(--muted);font-size:.7rem">Desde</span>
-      <input type="number" id="f-desde" placeholder="0">
+      <input type="number" id="f-desde" placeholder="0" step="1" style="-moz-appearance:textfield">
       <span style="color:var(--muted);font-size:.7rem">Hasta</span>
-      <input type="number" id="f-hasta" placeholder="Sin límite">
+      <input type="number" id="f-hasta" placeholder="Sin límite" step="1" style="-moz-appearance:textfield">
     </div>
   </div>
 
