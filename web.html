@@ -129,7 +129,7 @@
   <span><span id="cnt">0</span> PROPIEDADES</span>
   <button class="rbtn" id="rbtn">↻ ACTUALIZAR</button>
 </div>
-<div id="titulo-modo" style="text-align:center;padding:12px 0 4px;font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700">PROPIEDADES DESTACADAS</div>
+<div id="titulo-modo" style="text-align:center;padding:12px 0 16px;font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700">PROPIEDADES DESTACADAS</div>
 <div class="grid" id="grid"></div>
 <div class="nores" id="nores">No se encontraron propiedades</div>
 <div class="footer">
@@ -486,11 +486,6 @@ const TIPO_GRUPO_B={"APARTAMENTO": "Departamentos", "CASA": "Casas", "TERRENO": 
 let modoDestacadas=true,filtrosActivos=null;
 function getTipoGrupo(t){return TIPO_MAP_B[t]||'OTROS';}
 window.abrirBuscador=function(){
-  // Limpiar todos los checkboxes al abrir
-  document.querySelectorAll('#modal-buscar input[type=checkbox]').forEach(c=>c.checked=false);
-  document.getElementById('f-desde').value='';
-  document.getElementById('f-hasta').value='';
-  document.getElementById('f-ciudad').value='';
   const ciudades=[...new Set(PROPS.map(p=>p.ciudad).filter(Boolean))].sort();
   const sel=document.getElementById('f-ciudad');
   sel.innerHTML='<option value="">Todas</option>';
