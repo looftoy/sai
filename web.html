@@ -82,7 +82,7 @@
   #modal-buscar{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;align-items:center;justify-content:center}
   #modal-buscar.on{display:flex}
   .modal-box{background:#1a1a1a;border:1px solid var(--border);border-radius:12px;padding:28px;max-width:640px;width:90%;max-height:90vh;overflow-y:auto}
-  .modal-box h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);margin-bottom:20px;letter-spacing:.15em;text-transform:uppercase}
+  .modal-box h3{font-family:'Montserrat',sans-serif;font-size:.75rem;color:var(--gold);margin-bottom:20px;letter-spacing:.2em;text-transform:uppercase;font-weight:700}
   .modal-close{float:right;cursor:pointer;color:var(--muted);font-size:1.4rem;line-height:1;margin-top:-4px}
   .modal-close:hover{color:#fff}
   .fgroup{margin-bottom:18px}
@@ -365,7 +365,7 @@ function render(){
   grid.innerHTML=filtered.map((p,i)=>`
     <div class="card" data-ref="${p.ref}" style="animation-delay:${i*.04}s">
       <div class="ct">
-        <div class="gal" onclick="const ph=FOTOS_MAP['${p.ref}'];if(ph&&ph.length){const idx=parseInt(this.querySelector('.gcnt')?.textContent?.split('/')[0]||1)-1;lbOpen(ph,idx>=0?idx:0)}" style="cursor:zoom-in">
+        <div class="gal" onclick="const ph=FOTOS_MAP['${p.ref}'];if(ph&&ph.length){const s=GS['${p.ref}'];lbOpen(ph,s?s.idx:0)}" style="cursor:zoom-in">
           <div class="gslides"><div class="gslide"><div class="ph"><div class="phi">🏠</div></div></div></div>
           <button class="gprev" onclick="goTo('${p.ref}',-1,event)">‹</button>
           <button class="gnext" onclick="goTo('${p.ref}',1,event)">›</button>
@@ -376,7 +376,7 @@ function render(){
         ${p.op==='TEMPORADA'?`<div class="cb" style="background:${CAT_COLOR[p.cat]||'#555'};color:#fff">${p.cat}</div>`:''}
       </div>
       <div class="cbody">
-        <div class="cref"># ${p.ref} · ${p.tipo.startsWith('APTO')?'APARTAMENTO'+p.tipo.slice(4):p.tipo}</div>
+        <div class="cref">${p.destaca.toUpperCase()==='SI'?'<span style="color:var(--gold)">&#9733;</span> ':''}# ${p.ref} ${p.destaca.toUpperCase()==='SI'?'':'· '}${p.tipo.startsWith('APTO')?'APARTAMENTO'+p.tipo.slice(4):p.tipo}</div>
         <div class="ctitle">${tc(p.nombre)}</div>
         <div class="cloc">${tc(p.barrio)}, ${tc(p.ciudad)}.</div>
         <div class="cspecs">
@@ -482,8 +482,8 @@ window.limpiarBusqueda = function limpiarBusqueda(){modoDestacadas=true;filtrosA
 cargarEmpresa().then(()=>cargarCSV());
 
 // ── BUSCADOR ────────────────────────────────────────────────────────────
-const TIPO_MAP_B={"APTO": "APARTAMENTO", "APTO ATICO": "APARTAMENTO", "APTO BAJOS": "APARTAMENTO", "APTO DUPLEX": "APARTAMENTO", "APTO ESCALERA": "APARTAMENTO", "APTO EXCLUSIVO": "APARTAMENTO", "APTO HABITACION": "APARTAMENTO", "APTO LOFT": "APARTAMENTO", "APTO PASILLO": "APARTAMENTO", "APTO PISO": "APARTAMENTO", "APTO SEMIPISO": "APARTAMENTO", "APTO VACACIONES": "APARTAMENTO", "CASA": "CASA", "CASA ADOSADA": "CASA", "CASA CABAÑA": "CASA", "CASA CAMPO": "CASA", "CASA CHALET": "CASA", "CASA CON GALPON": "CASA", "CASA CON LOCAL": "CASA", "CASA CONTAINER": "CASA", "CASA COUNTRY": "CASA", "CASA HABITACION": "CASA", "CASA INTERNA": "CASA", "CASA MASIA": "CASA", "CASA MINIMALISTA": "CASA", "CASA MONTAÑA": "CASA", "CASA PAREADA": "CASA", "CASA PASIILLO": "CASA", "CASA PLANTA ALTA": "CASA", "CASA PLANTA BAJA": "CASA", "CASA PREFABRICADA": "CASA", "CASA TORRE": "CASA", "CASA VACACIONES": "CASA", "CASA VILLA": "CASA", "CAMPO": "TERRENO", "CAMPO AGRICOLA": "TERRENO", "CAMPO GANADERO": "TERRENO", "CAMPO MIXTO": "TERRENO", "CHACRA": "TERRENO", "ESTANCIA": "TERRENO", "FRACCION": "TERRENO", "LOTE": "TERRENO", "LOTEO": "TERRENO", "PARCELA": "TERRENO", "SOLAR": "TERRENO", "TERRENO": "TERRENO", "FONDO COMERCIO": "LOCAL", "LOCAL": "LOCAL", "SALON": "LOCAL", "TRASPASO COMERCIO": "LOCAL", "OFICINA": "OFICINA", "CABAÑAS": "EDIFICIO", "EDIFICIO": "EDIFICIO", "HABITACION": "EDIFICIO", "HOSTEL": "EDIFICIO", "HOTEL": "EDIFICIO", "HOTEL APART": "EDIFICIO", "MOTEL": "EDIFICIO", "GALPON": "GALPON", "NAVE INDUSTRIAL": "GALPON", "PLANTA INDUSTRIAL": "GALPON", "COCHERA": "GARAGE", "GARAGE": "GARAGE", "PARKING": "GARAGE", "OTROS": "OTROS"};
-const TIPO_GRUPO_B={"APARTAMENTO": "Departamentos", "CASA": "Casas", "TERRENO": "Terrenos / Campos", "LOCAL": "Locales", "OFICINA": "Oficinas", "EDIFICIO": "Edificios", "GALPON": "Galpones", "GARAGE": "Garages", "OTROS": "Otros"};
+const TIPO_MAP_B={"APTO": "APARTAMENTO", "APTO ATICO": "APARTAMENTO", "APTO BAJOS": "APARTAMENTO", "APTO DUPLEX": "APARTAMENTO", "APTO ESCALERA": "APARTAMENTO", "APTO EXCLUSIVO": "APARTAMENTO", "APTO HABITACION": "APARTAMENTO", "APTO LOFT": "APARTAMENTO", "APTO PASILLO": "APARTAMENTO", "APTO PISO": "APARTAMENTO", "APTO SEMIPISO": "APARTAMENTO", "APTO VACACIONES": "APARTAMENTO", "CASA": "CASA", "CASA ADOSADA": "CASA", "CASA CABAÑA": "CASA", "CASA CAMPO": "CASA", "CASA CHALET": "CASA", "CASA CON GALPON": "CASA", "CASA CON LOCAL": "CASA", "CASA CONTAINER": "CASA", "CASA COUNTRY": "CASA", "CASA HABITACION": "CASA", "CASA INTERNA": "CASA", "CASA MASIA": "CASA", "CASA MINIMALISTA": "CASA", "CASA MONTAÑA": "CASA", "CASA PAREADA": "CASA", "CASA PASIILLO": "CASA", "CASA PLANTA ALTA": "CASA", "CASA PLANTA BAJA": "CASA", "CASA PREFABRICADA": "CASA", "CASA TORRE": "CASA", "CASA VACACIONES": "CASA", "CASA VILLA": "CASA", "CAMPO": "TERRENO", "CAMPO AGRICOLA": "TERRENO", "CAMPO GANADERO": "TERRENO", "CAMPO MIXTO": "TERRENO", "CHACRA": "TERRENO", "ESTANCIA": "TERRENO", "FRACCION": "TERRENO", "LOTE": "TERRENO", "LOTEO": "TERRENO", "PARCELA": "TERRENO", "SOLAR": "TERRENO", "TERRENO": "TERRENO", "FONDO COMERCIO": "LOCAL", "LOCAL": "LOCAL", "SALON": "LOCAL", "TRASPASO COMERCIO": "LOCAL", "OFICINA": "OFICINA", "CABAÑAS": "EDIFICIO", "EDIFICIO": "EDIFICIO", "HABITACION": "EDIFICIO", "HOSTEL": "EDIFICIO", "HOTEL": "EDIFICIO", "HOTEL APART": "EDIFICIO", "MOTEL": "EDIFICIO", "GALPON": "GALPON", "NAVE INDUSTRIAL": "GALPON", "PLANTA INDUSTRIAL": "GALPON", "COCHERA": "GARAJE", "GARAJE": "GARAJE", "PARKING": "GARAJE", "OTROS": "OTROS"};
+const TIPO_GRUPO_B={"APARTAMENTO": "Departamentos", "CASA": "Casas", "TERRENO": "Terrenos / Campos", "LOCAL": "Locales", "OFICINA": "Oficinas", "EDIFICIO": "Edificios", "GALPON": "Galpones", "GARAJE": "Garages", "OTROS": "Otros"};
 let modoDestacadas=true,filtrosActivos=null;
 function getTipoGrupo(t){return TIPO_MAP_B[t]||'OTROS';}
 window.abrirBuscador=function(){
@@ -595,10 +595,8 @@ document.addEventListener('keydown',function(e){
       <label class="fcheck"><input type="checkbox" name="moneda" value="EUR"><span>EUR</span></label>
     </div>
     <div class="fprice-row">
-      <span style="color:var(--muted);font-size:.7rem">Desde</span>
-      <input type="number" id="f-desde" placeholder="0" step="1" style="-moz-appearance:textfield">
-      <span style="color:var(--muted);font-size:.7rem">Hasta</span>
-      <input type="number" id="f-hasta" placeholder="Sin límite" step="1" style="-moz-appearance:textfield">
+      <input type="number" id="f-desde" placeholder="Desde" step="1" style="-moz-appearance:textfield">
+      <input type="number" id="f-hasta" placeholder="Hasta" step="1" style="-moz-appearance:textfield">
     </div>
   </div>
 
