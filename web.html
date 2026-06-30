@@ -365,7 +365,7 @@ function render(){
   grid.innerHTML=filtered.map((p,i)=>`
     <div class="card" data-ref="${p.ref}" style="animation-delay:${i*.04}s">
       <div class="ct">
-        <div class="gal" onclick="const ph=FOTOS_MAP['${p.ref}'];if(ph&&ph.length){const s=GS['${p.ref}'];lbOpen(ph,s?s.idx:0)}" style="cursor:zoom-in">
+        <div class="gal" onclick="const s=GS['${p.ref}'];if(s&&s.photos&&s.photos.length)lbOpen(s.photos,s.idx)" style="cursor:zoom-in">
           <div class="gslides"><div class="gslide"><div class="ph"><div class="phi">🏠</div></div></div></div>
           <button class="gprev" onclick="goTo('${p.ref}',-1,event)">‹</button>
           <button class="gnext" onclick="goTo('${p.ref}',1,event)">›</button>
@@ -514,7 +514,7 @@ window.ejecutarBusqueda=function(){
   window.cerrarBuscador();
   render();
 };
-document.getElementById('modal-buscar').addEventListener('click',function(e){if(e.target===this)window.cerrarBuscador();});
+document.addEventListener('click',function(e){if(e.target&&e.target.id==='modal-buscar')window.cerrarBuscador();});
 
 // ── LIGHTBOX ────────────────────────────────────────────────────────────
 let lbPhotos=[], lbIdx=0;
@@ -536,7 +536,7 @@ function lbShow(){
   document.getElementById('lb-img').src=lbPhotos[lbIdx];
   document.getElementById('lb-cnt').textContent=(lbIdx+1)+' / '+lbPhotos.length;
 }
-document.getElementById('lb').addEventListener('click',function(e){if(e.target===this)lbClose();});
+document.addEventListener('click',function(e){if(e.target&&e.target.id==='lb')lbClose();});
 document.addEventListener('keydown',function(e){
   if(!document.getElementById('lb').classList.contains('on')) return;
   if(e.key==='ArrowLeft') lbNav(-1);
