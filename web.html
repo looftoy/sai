@@ -494,6 +494,7 @@ window.abrirBuscador=function(){
   const fc=document.getElementById('fc-tipo');
   fc.innerHTML='';
   Object.keys(TIPO_GRUPO_B).forEach(g=>{const lbl=document.createElement('label');lbl.className='fcheck';lbl.innerHTML=`<input type="checkbox" name="tipo" value="${g}"><span>${TIPO_GRUPO_B[g]}</span>`;fc.appendChild(lbl);});
+  limpiarFiltros();
   document.getElementById('modal-buscar').classList.add('on');
   document.body.style.overflow='hidden';
 };
