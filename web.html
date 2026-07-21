@@ -337,7 +337,7 @@ function render(){
       if(f.dorms.length){
         const d=p.dorms.toUpperCase();
         const match = f.dorms.some(v=>{
-          if(v==='0') return d.includes('MONO');
+          if(v==='0') return d.startsWith('0')||d.includes('MONO');
           if(v==='4') return d.startsWith('4')||d.startsWith('5')||d.startsWith('6')||d==='X DORMITORIOS';
           return d.startsWith(v+' ');
         });
@@ -380,7 +380,7 @@ function render(){
         <div class="ctitle">${tc(p.nombre)}</div>
         <div class="cloc">${tc(p.barrio)}, ${tc(p.ciudad)}.</div>
         <div class="cspecs">
-          ${(()=>{const d=(p.dorms||'').toUpperCase().trim();if(!d)return'';let sv;if(d==='MONOAMBIENTE'||d==='M')sv='0';else if(d==='1L'||d.includes('LOCAL'))sv='LOCAL';else if(d.includes('OFICINA'))sv='OFICINA';else if(d.startsWith('X'))sv='6+';else sv=d.split(' ')[0];if(sv==='0'&&(p.tipo||'').toUpperCase().trim()==='HABITACION')sv='1';if(!/^\d+$/.test(sv)&&sv!=='6+')return'';return`<div class="spec"><div class="sv">${sv}</div><div class="sl">Dorms</div></div>`;})()}
+          ${(()=>{const d=(p.dorms||'').toUpperCase().trim();if(!d)return'';let sv;if(d==='MONOAMBIENTE'||d==='M')sv='0';else if(d==='1L'||d.includes('LOCAL'))sv='LOCAL';else if(d.includes('OFICINA'))sv='OFICINA';else if(d.startsWith('X'))sv='6+';else sv=d.split(' ')[0];if(sv==='0'&&(p.tipo||'').toUpperCase().trim()==='HABITACION')sv='1';if(!/^\d+\+?$/.test(sv)&&sv!=='6+')return'';return`<div class="spec"><div class="sv">${sv}</div><div class="sl">Dorms</div></div>`;})()}
           <div class="spec"><div class="sv">${p.banos}</div><div class="sl">Baños</div></div>
           ${parseInt(p.supconst)>0?`<div class="spec"><div class="sv">${parseInt(p.supconst).toLocaleString('es-AR')} m²</div><div class="sl">Const.</div></div>`:''}
           ${parseInt(p.suplote)>0?`<div class="spec"><div class="sv">${['CAMPO','CHACRA','ESTANCIA','FRACCION'].includes(p.tipo.toUpperCase().trim().split(' ')[0])?parseInt(p.suplote).toLocaleString('es-AR')+' ha':parseInt(p.suplote)>9999?(parseInt(p.suplote)/10000).toFixed(0)+' ha':parseInt(p.suplote).toLocaleString('es-AR')+' m²'}</div><div class="sl">Lote</div></div>`:''}
@@ -580,7 +580,7 @@ document.addEventListener('keydown',function(e){
   <div class="fgroup">
     <div class="fgroup-title">Dormitorios</div>
     <div class="fcheck-grid">
-      <label class="fcheck"><input type="checkbox" name="dorms" value="0"><span>Monoambiente</span></label>
+      <label class="fcheck"><input type="checkbox" name="dorms" value="0"><span>0</span></label>
       <label class="fcheck"><input type="checkbox" name="dorms" value="1"><span>1</span></label>
       <label class="fcheck"><input type="checkbox" name="dorms" value="2"><span>2</span></label>
       <label class="fcheck"><input type="checkbox" name="dorms" value="3"><span>3</span></label>
