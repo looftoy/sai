@@ -58,10 +58,10 @@
 <div class="main">
   <div class="card" id="cardForm">
     <div class="card-title">Nueva Propiedad Visitada</div>
-    <div class="card-sub">Complete los datos de la Propiedad!</div>
+    <div class="card-sub">Complete los datos y suba las fotos de la propiedad</div>
 
     <div class="field">
-      <label>Direccion <span class="req">*</span></label>
+      <label>Direccion de la Propiedad Prospectada <span class="req">*</span></label>
       <input type="text" id="direccion" placeholder="Ej: Laprida 1423" maxlength="150">
     </div>
     <div class="field">
@@ -69,12 +69,12 @@
       <input type="text" id="ciudad" placeholder="Ej: Rosario" maxlength="80">
     </div>
     <div class="field">
-      <label>Nombre del Asesor <span class="req">*</span></label>
+      <label>Nombre y Apellido del Vendedor <span class="req">*</span></label>
       <input type="text" id="vendedor" placeholder="Ej: Juan Perez" maxlength="120">
     </div>
 
     <div class="field">
-      <label>Fotos <span class="req">*</span> (maximo 40)</label>
+      <label>Fotos de la Propiedad <span class="req">*</span> (maximo 40)</label>
       <div class="dropzone">
         <p>Elija las fotos desde su celular</p>
         <button type="button" class="btn-fotos" onclick="document.getElementById('inputFotos').click()">Seleccionar Fotos</button>
@@ -101,9 +101,6 @@
 </div>
 
 <script>
-// ================================================================
-// CONFIGURACION - se carga desde vendedores_config.json
-// ================================================================
 let CONFIG = null;
 let fotosSeleccionadas = []; // array de File
 
@@ -116,11 +113,9 @@ async function cargarConfig() {
   try {
     const r = await fetch('vendedores_config.json?t=' + Date.now());
     CONFIG = await r.json();
-    // Aplicar datos de la inmobiliaria
     document.getElementById('hdr-nombre').textContent = CONFIG.nombre || 'SAI+';
     document.getElementById('hdr-sub').textContent = (CONFIG.ciudad || '') + (CONFIG.ciudad ? ' - ' : '') + 'Portal de Vendedores';
     document.title = (CONFIG.nombre || 'SAI+') + ' — Portal de Vendedores';
-    // Footer
     let contacto = [];
     if (CONFIG.direccion) contacto.push(CONFIG.direccion);
     if (CONFIG.tel)       contacto.push('Tel: ' + CONFIG.tel);
