@@ -1,4 +1,9 @@
 {
   "nombre": "LOOF RENTALS REAL ESTATE",
-  "appsScriptUrl": "PEGAR_AQUI_LA_URL_DE_LA_APP_WEB_DE_APPS_SCRIPT"
+  "direccion": "LAVALLE 1298",
+  "ciudad": "ROSARIO",
+  "tel": "3414389556",
+  "email": "loof.rentals@gmail.com",
+  "web": "looftoy.github.io/sai/web.html",
+  "appsScriptUrl": "https://script.google.com/macros/s/AKfycbxZbUj0eMeh1pKJkPxcQ1CroPp5hNvWOAkwxGoNFMJ9af0mqfda4JiIWdEBCALnF99tEw/exec"
 }
