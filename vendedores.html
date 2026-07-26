@@ -51,21 +51,21 @@
 <body>
 
 <div class="header">
-  <div class="logo" id="hdr-nombre">PORTAL DE VENDEDORES</div>
-  <div class="sub" id="hdr-sub">Carga de Propiedades Prospectadas</div>
+  <div class="logo" id="hdr-nombre">SAI+</div>
+  <div class="sub" id="hdr-sub">Portal de Vendedores</div>
 </div>
 
 <div class="main">
   <div class="card" id="cardForm">
     <div class="card-title">Nueva Propiedad Visitada</div>
-    <div class="card-sub">Complete los datos y suba las fotos de la propiedad</div>
+    <div class="card-sub">Complete los datos y suba las fotos!</div>
 
     <div class="field">
-      <label>Direccion de la Propiedad Prospectada <span class="req">*</span></label>
+      <label>Direccion de la Propiedad Visitada <span class="req">*</span></label>
       <input type="text" id="direccion" placeholder="Ej: Laprida 1423" maxlength="150">
     </div>
     <div class="field">
-      <label>Ciudad <span class="req">*</span></label>
+      <label>Ciudad de la Propiedad <span class="req">*</span></label>
       <input type="text" id="ciudad" placeholder="Ej: Rosario" maxlength="80">
     </div>
     <div class="field">
@@ -113,11 +113,13 @@ async function cargarConfig() {
   try {
     const r = await fetch('vendedores_config.json?t=' + Date.now());
     CONFIG = await r.json();
-    document.getElementById('hdr-nombre').textContent = 'PORTAL DE VENDEDORES';
-    document.getElementById('hdr-sub').textContent = (CONFIG.nombre || 'SAI+') + ' - Carga de Propiedades Prospectadas';
-    document.title = 'Portal de Vendedores - ' + (CONFIG.nombre || 'SAI+');
+    document.getElementById('hdr-nombre').textContent = CONFIG.nombre || 'SAI+';
+    document.getElementById('hdr-sub').textContent = (CONFIG.ciudad || '') + (CONFIG.ciudad ? ' - ' : '') + 'Portal de Vendedores';
+    document.title = (CONFIG.nombre || 'SAI+') + ' — Portal de Vendedores';
     let contacto = [];
-    if (CONFIG.nombre) contacto.push(CONFIG.nombre);
+    if (CONFIG.direccion) contacto.push(CONFIG.direccion);
+    if (CONFIG.tel)       contacto.push('Tel: ' + CONFIG.tel);
+    if (CONFIG.email)     contacto.push(CONFIG.email);
     document.getElementById('ftr-contacto').textContent = contacto.join('  ·  ');
   } catch (e) {
     console.warn('No se pudo cargar vendedores_config.json:', e);
