@@ -6,6 +6,8 @@
 <title id="page-title">SAI+ Inmobiliaria</title>
 <link id="favicon" rel="icon" type="image/x-icon" href="sai.ico">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js"></script>
 <style>
   :root {
     --gold:#c9a84c;--dark:#0e0e0e;--dark2:#1a1a1a;--dark3:#242424;
@@ -104,17 +106,11 @@
   .resultado-cnt{font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-left:8px}
 
 
-  #lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column}
-  #lb.on{display:flex}
-  #lb-img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:4px}
-  #lb-close{position:absolute;top:16px;right:20px;color:#fff;font-size:2rem;cursor:pointer;line-height:1;opacity:.8}
-  #lb-close:hover{opacity:1}
-  #lb-prev,#lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:var(--gold);border:none;font-size:2.5rem;padding:0 14px;cursor:pointer;border-radius:2px;height:60px;display:flex;align-items:center}
-  #lb-prev{left:10px}#lb-next{right:10px}
-  #lb-cnt{color:#aaa;font-size:.75rem;margin-top:10px;letter-spacing:.1em}
+  .gplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:rgba(0,0,0,.55);border-radius:50%;color:#fff;font-size:1.1rem;display:flex;align-items:center;justify-content:center;pointer-events:none}
 
 </style>
 </head>
+
 <body>
 <div class="header">
   <div class="logo" id="hdr-nombre">SAI+</div>
@@ -229,6 +225,7 @@ function mapRow(r){
     const id=(r[`foto${i}`]||'').trim();
     if(id) fotos.push(`https://drive.google.com/thumbnail?id=${id}&sz=w800`);
   }
+  const videoId=extraerYoutubeId(r.videoyoutube||'');
   return {
     ref:       r.ref||r.nro||'',
     nombre:    r.nombre||r.calle||'',
@@ -248,7 +245,9 @@ function mapRow(r){
     gdrive:    r.gdrive||'',
     ocup:      (r.ocupacion||'').toUpperCase().trim(),
     destaca:   (r.destaca||'').trim(),
-    fotos:     fotos
+    fotos:     fotos,
+    videoId:    videoId,
+    videoThumb: videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : ''
   };
 }
 
@@ -303,18 +302,23 @@ function updateGal(ref){
   if(ctr && s.photos.length>1) ctr.textContent=`${s.idx+1}/${s.photos.length}`;
 }
 
-function initGal(card, photos, ref){
-  GS[ref]={idx:0, photos};
+function initGal(card, items, ref){
+  GS[ref]={idx:0, photos:items};
   const slides=card.querySelector('.gslides');
   const dots=card.querySelector('.gdots');
   const ctr=card.querySelector('.gctr');
-  slides.innerHTML=photos.map((url,i)=>`
-    <div class="gslide"><img src="${url}" alt="Foto ${i+1}" loading="${i===0?'eager':'lazy'}"
+  slides.innerHTML=items.map((it,i)=>{
+    if(it.type==='video'){
+      return `<div class="gslide"><img src="${it.thumb}" alt="Video" loading="${i===0?'eager':'lazy'}"
+        onerror="this.parentElement.innerHTML='<div class=\\'ph\\'><div class=\\'phi\\'>🏠</div></div>'"><div class="gplay">&#9658;</div></div>`;
+    }
+    return `<div class="gslide"><img src="${it.url}" alt="Foto ${i+1}" loading="${i===0?'eager':'lazy'}"
       onerror="this.parentElement.innerHTML='<div class=\\'ph\\'><div class=\\'phi\\'>🏠</div></div>'"
-    ></div>`).join('');
-  if(photos.length>1){
-    dots.innerHTML=photos.map((_,i)=>`<div class="gdot${i===0?' active':''}" onclick="event.stopPropagation();goTo('${ref}',${i}-GS['${ref}'].idx,event)"></div>`).join('');
-    ctr.textContent=`1/${photos.length}`;
+    ></div>`;
+  }).join('');
+  if(items.length>1){
+    dots.innerHTML=items.map((_,i)=>`<div class="gdot${i===0?' active':''}" onclick="event.stopPropagation();goTo('${ref}',${i}-GS['${ref}'].idx,event)"></div>`).join('');
+    ctr.textContent=`1/${items.length}`;
   }
 }
 
@@ -365,7 +369,7 @@ function render(){
   grid.innerHTML=filtered.map((p,i)=>`
     <div class="card" data-ref="${p.ref}" style="animation-delay:${i*.04}s">
       <div class="ct">
-        <div class="gal" onclick="const s=GS['${p.ref}'];if(s&&s.photos&&s.photos.length)lbOpen(s.photos,s.idx)" style="cursor:zoom-in">
+        <div class="gal" onclick="const s=GS['${p.ref}'];if(s&&s.photos&&s.photos.length)abrirVisor(s.photos,s.idx)" style="cursor:zoom-in">
           <div class="gslides"><div class="gslide"><div class="ph"><div class="phi">🏠</div></div></div></div>
           <button class="gprev" onclick="goTo('${p.ref}',-1,event)">‹</button>
           <button class="gnext" onclick="goTo('${p.ref}',1,event)">›</button>
@@ -417,8 +421,10 @@ function render(){
 
   filtered.forEach(p=>{
     const photos=p.fotos.length?p.fotos:(FOTOS[p.ref]||[SINFOTO]);
+    const items=photos.map(url=>({type:'foto', url}));
+    if(p.videoId) items.push({type:'video', id:p.videoId, thumb:p.videoThumb});
     const card=document.querySelector(`[data-ref="${p.ref}"]`);
-    if(card) initGal(card,photos,p.ref);
+    if(card) initGal(card,items,p.ref);
   });
 }
 
@@ -517,43 +523,21 @@ window.ejecutarBusqueda=function(){
 };
 document.addEventListener('click',function(e){if(e.target&&e.target.id==='modal-buscar')window.cerrarBuscador();});
 
-// ── LIGHTBOX ────────────────────────────────────────────────────────────
-let lbPhotos=[], lbIdx=0;
-function lbOpen(photos, idx){
-  lbPhotos=photos; lbIdx=idx;
-  lbShow();
-  document.getElementById('lb').classList.add('on');
-  document.body.style.overflow='hidden';
+// ── VISOR (Fancybox: fotos + video de YouTube, con Play/Autoplay nativo) ──
+function extraerYoutubeId(url){
+  if(!url) return '';
+  const m = String(url).trim().match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : '';
 }
-function lbClose(){
-  document.getElementById('lb').classList.remove('on');
-  document.body.style.overflow='';
+function abrirVisor(items, idx){
+  const fbItems = items.map(it => it.type==='video'
+    ? { src: `https://www.youtube.com/watch?v=${it.id}`, type: 'youtube' }
+    : { src: it.url, type: 'image' }
+  );
+  Fancybox.show(fbItems, { startIndex: idx, Carousel: { Autoplay: true } });
 }
-function lbNav(dir){
-  lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;
-  lbShow();
-}
-function lbShow(){
-  document.getElementById('lb-img').src=lbPhotos[lbIdx];
-  document.getElementById('lb-cnt').textContent=(lbIdx+1)+' / '+lbPhotos.length;
-}
-document.addEventListener('click',function(e){if(e.target&&e.target.id==='lb')lbClose();});
-document.addEventListener('keydown',function(e){
-  if(!document.getElementById('lb').classList.contains('on')) return;
-  if(e.key==='ArrowLeft') lbNav(-1);
-  if(e.key==='ArrowRight') lbNav(1);
-  if(e.key==='Escape') lbClose();
-});
 
 </script>
-
-<div id="lb">
-  <span id="lb-close" onclick="lbClose()">&#10005;</span>
-  <button id="lb-prev" onclick="lbNav(-1)">&#8249;</button>
-  <img id="lb-img" src="" alt="">
-  <button id="lb-next" onclick="lbNav(1)">&#8250;</button>
-  <div id="lb-cnt"></div>
-</div>
 
 
 <!-- MODAL BUSCADOR -->
