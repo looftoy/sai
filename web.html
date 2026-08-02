@@ -257,7 +257,7 @@ async function cargarCSV(){
   const grid=document.getElementById('grid');
   grid.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:40px;color:#4D9C00;letter-spacing:.2em;font-size:1rem;font-weight:700">CARGANDO PROPIEDADES...</p>';
   try{
-    const res=await fetch(CSV_URL);
+    const res=await fetch(CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const text=await res.text();
     const rows=parseCSV(text);
     PROPS=rows.map(mapRow).filter(p=>p.ref&&p.ref!=='9999');
@@ -440,7 +440,7 @@ window.EMPRESA_CEL = '';
 async function cargarEmpresa(){
   try{
     // Leer hoja empresa del Sheet
-    const res = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRiF6w8XgTuNuvjyr-hobFeQgzo3FhRzndplNQAY9QMWHDpUwf6Ct6yOk09x_S3gYofjNs_f1irzzea/pub?gid=303834842&single=true&output=csv`);
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRiF6w8XgTuNuvjyr-hobFeQgzo3FhRzndplNQAY9QMWHDpUwf6Ct6yOk09x_S3gYofjNs_f1irzzea/pub?gid=303834842&single=true&output=csv&t=${Date.now()}`, {cache:'no-store'});
     const text = await res.text();
     const rows = parseCSV(text);
     if(!rows.length) return;
