@@ -69,8 +69,8 @@
       <input type="text" id="ciudad" placeholder="Ej: Rosario" maxlength="80">
     </div>
     <div class="field">
-      <label>Nombre del Asesor <span class="req">*</span></label>
-      <input type="text" id="vendedor" placeholder="Ej: Juan Perez" maxlength="120">
+      <label>Clave de Acceso <span class="req">*</span></label>
+      <input type="password" id="clave" placeholder="Ingrese su clave" maxlength="30">
     </div>
 
     <div class="field">
@@ -201,10 +201,10 @@ function mostrarMsg(txt, tipo) {
 async function subirDatos() {
   const direccion = document.getElementById('direccion').value.trim();
   const ciudad    = document.getElementById('ciudad').value.trim();
-  const vendedor  = document.getElementById('vendedor').value.trim();
+  const clave     = document.getElementById('clave').value.trim();
 
-  if (!direccion || !ciudad || !vendedor) {
-    mostrarMsg('Complete Direccion, Ciudad y Nombre del Vendedor.', 'error');
+  if (!direccion || !ciudad || !clave) {
+    mostrarMsg('Complete Direccion, Ciudad y Clave de Acceso.', 'error');
     return;
   }
   if (fotosSeleccionadas.length === 0) {
@@ -230,7 +230,7 @@ async function subirDatos() {
         fotosBase64.push({ nombre: 'foto_' + (i + 1) + '.jpg', base64: b64 });
       }
 
-      const payload = { direccion: direccion, ciudad: ciudad, vendedor: vendedor, fotos: fotosBase64 };
+      const payload = { direccion: direccion, ciudad: ciudad, clave: clave, fotos: fotosBase64 };
 
       const resp = await fetch(CONFIG.appsScriptUrl, {
         method: 'POST',
