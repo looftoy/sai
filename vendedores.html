@@ -24,6 +24,10 @@
   .field input{width:100%;background:var(--dark3);border:1px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:500;padding:10px 12px;border-radius:2px;outline:none;transition:border-color .2s;letter-spacing:.05em}
   .field input:focus{border-color:var(--gold)}
   .field input::placeholder{color:var(--muted);font-weight:300}
+  .field select{width:100%;background:var(--dark3);border:1px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:500;padding:10px 12px;border-radius:2px;outline:none;transition:border-color .2s;letter-spacing:.05em}
+  .field select:focus{border-color:var(--gold)}
+  .fila-doble{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+  .seccion-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold);letter-spacing:.08em;margin:26px 0 14px;padding-top:18px;border-top:1px solid var(--border)}
 
   .dropzone{border:2px dashed var(--border);background:var(--dark3);border-radius:4px;padding:22px 14px;text-align:center;margin-top:8px}
   .dropzone p{color:var(--muted);font-size:.7rem;letter-spacing:.05em;margin-bottom:12px}
@@ -69,8 +73,165 @@
       <input type="text" id="ciudad" placeholder="Ej: Rosario" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="field">
+      <label>Operacion <span class="req">*</span></label>
+      <select id="operacion">
+        <option value="">Seleccione...</option>
+        <option value="EN VENTA">EN VENTA</option>
+        <option value="EN ALQUILER">EN ALQUILER</option>
+        <option value="PREVENTA">PREVENTA</option>
+        <option value="TEMPORADA">TEMPORADA</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Barrio / Zona <span class="req">*</span></label>
+      <input type="text" id="barrio" placeholder="Ej: Centro" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+    </div>
+    <div class="field">
+      <label>Tipologia <span class="req">*</span></label>
+      <select id="tipologia">
+        <option value="">Seleccione...</option>
+        <optgroup label="Departamentos">
+          <option value="APTO">APTO</option>
+          <option value="APTO ATICO">APTO ATICO</option>
+          <option value="APTO BAJOS">APTO BAJOS</option>
+          <option value="APTO DUPLEX">APTO DUPLEX</option>
+          <option value="APTO ESCALERA">APTO ESCALERA</option>
+          <option value="APTO EXCLUSIVO">APTO EXCLUSIVO</option>
+          <option value="APTO HABITACION">APTO HABITACION</option>
+          <option value="APTO LOFT">APTO LOFT</option>
+          <option value="APTO PASILLO">APTO PASILLO</option>
+          <option value="APTO PISO">APTO PISO</option>
+          <option value="APTO SEMIPISO">APTO SEMIPISO</option>
+          <option value="APTO VACACIONES">APTO VACACIONES</option>
+        </optgroup>
+        <optgroup label="Casas">
+          <option value="CASA">CASA</option>
+          <option value="CASA ADOSADA">CASA ADOSADA</option>
+          <option value="CASA CABAÑA">CASA CABAÑA</option>
+          <option value="CASA CAMPO">CASA CAMPO</option>
+          <option value="CASA CHALET">CASA CHALET</option>
+          <option value="CASA CON GALPON">CASA CON GALPON</option>
+          <option value="CASA CON LOCAL">CASA CON LOCAL</option>
+          <option value="CASA CONTAINER">CASA CONTAINER</option>
+          <option value="CASA COUNTRY">CASA COUNTRY</option>
+          <option value="CASA HABITACION">CASA HABITACION</option>
+          <option value="CASA INTERNA">CASA INTERNA</option>
+          <option value="CASA MASIA">CASA MASIA</option>
+          <option value="CASA MINIMALISTA">CASA MINIMALISTA</option>
+          <option value="CASA MONTAÑA">CASA MONTAÑA</option>
+          <option value="CASA PAREADA">CASA PAREADA</option>
+          <option value="CASA PASIILLO">CASA PASIILLO</option>
+          <option value="CASA PLANTA ALTA">CASA PLANTA ALTA</option>
+          <option value="CASA PLANTA BAJA">CASA PLANTA BAJA</option>
+          <option value="CASA PREFABRICADA">CASA PREFABRICADA</option>
+          <option value="CASA TORRE">CASA TORRE</option>
+          <option value="CASA VACACIONES">CASA VACACIONES</option>
+          <option value="CASA VILLA">CASA VILLA</option>
+        </optgroup>
+        <optgroup label="Terrenos / Campos">
+          <option value="CAMPO">CAMPO</option>
+          <option value="CAMPO AGRICOLA">CAMPO AGRICOLA</option>
+          <option value="CAMPO GANADERO">CAMPO GANADERO</option>
+          <option value="CAMPO MIXTO">CAMPO MIXTO</option>
+          <option value="CHACRA">CHACRA</option>
+          <option value="ESTANCIA">ESTANCIA</option>
+          <option value="FRACCION">FRACCION</option>
+          <option value="LOTE">LOTE</option>
+          <option value="LOTEO">LOTEO</option>
+          <option value="PARCELA">PARCELA</option>
+          <option value="SOLAR">SOLAR</option>
+          <option value="TERRENO">TERRENO</option>
+        </optgroup>
+        <optgroup label="Locales">
+          <option value="FONDO COMERCIO">FONDO COMERCIO</option>
+          <option value="LOCAL">LOCAL</option>
+          <option value="SALON">SALON</option>
+          <option value="TRASPASO COMERCIO">TRASPASO COMERCIO</option>
+        </optgroup>
+        <optgroup label="Oficinas">
+          <option value="OFICINA">OFICINA</option>
+        </optgroup>
+        <optgroup label="Edificios">
+          <option value="CABAÑAS">CABAÑAS</option>
+          <option value="EDIFICIO">EDIFICIO</option>
+          <option value="HABITACION">HABITACION</option>
+          <option value="HOSTEL">HOSTEL</option>
+          <option value="HOTEL">HOTEL</option>
+          <option value="HOTEL APART">HOTEL APART</option>
+          <option value="MOTEL">MOTEL</option>
+        </optgroup>
+        <optgroup label="Galpones">
+          <option value="GALPON">GALPON</option>
+          <option value="NAVE INDUSTRIAL">NAVE INDUSTRIAL</option>
+          <option value="PLANTA INDUSTRIAL">PLANTA INDUSTRIAL</option>
+        </optgroup>
+        <optgroup label="Garajes">
+          <option value="COCHERA">COCHERA</option>
+          <option value="GARAJE">GARAJE</option>
+          <option value="PARKING">PARKING</option>
+        </optgroup>
+        <optgroup label="Otros">
+          <option value="OTROS">OTROS</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field">
+      <label>Ambientes <span class="req">*</span></label>
+      <select id="ambientes">
+        <option value="">Seleccione...</option>
+        <option value="0 DORMITORIO">0 DORMITORIO</option>
+        <option value="1 DORMITORIO">1 DORMITORIO</option>
+        <option value="2 DORMITORIOS">2 DORMITORIOS</option>
+        <option value="3 DORMITORIOS">3 DORMITORIOS</option>
+        <option value="4+ DORMITORIOS">4+ DORMITORIOS</option>
+        <option value="0 AMBIENTE">0 AMBIENTE</option>
+        <option value="1 AMBIENTE">1 AMBIENTE</option>
+        <option value="2 AMBIENTES">2 AMBIENTES</option>
+        <option value="3 AMBIENTES">3 AMBIENTES</option>
+        <option value="4+ AMBIENTES">4+ AMBIENTES</option>
+        <option value="NO TIENE">NO TIENE</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Baños <span class="req">*</span></label>
+      <input type="number" id="banos" placeholder="Ej: 2" min="0" max="20" step="1">
+    </div>
+    <div class="field">
+      <label>Precio Pactado <span class="req">*</span></label>
+      <div class="fila-doble">
+        <input type="number" id="precio" placeholder="Ej: 95000" min="0" step="1">
+        <select id="moneda">
+          <option value="USD">USD</option>
+          <option value="ARS">ARS</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
       <label>Clave de Acceso <span class="req">*</span></label>
       <input type="password" id="clave" placeholder="Ingrese su clave" maxlength="30">
+    </div>
+
+    <div class="seccion-title">Datos del Propietario</div>
+    <div class="field">
+      <label>Nombre <span class="req">*</span></label>
+      <input type="text" id="propNombre" placeholder="Nombre y Apellido" maxlength="120">
+    </div>
+    <div class="field">
+      <label>Direccion <span class="req">*</span></label>
+      <input type="text" id="propDireccion" placeholder="Puede ser la misma de la propiedad" maxlength="150" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+    </div>
+    <div class="field">
+      <label>Ciudad <span class="req">*</span></label>
+      <input type="text" id="propCiudad" placeholder="Puede ser la misma de la propiedad" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+    </div>
+    <div class="field">
+      <label>Movil <span class="req">*</span></label>
+      <input type="tel" id="propMovil" placeholder="Ej: 3415484296" maxlength="20">
+    </div>
+    <div class="field">
+      <label>DNI <span class="req">*</span></label>
+      <input type="text" id="propDni" placeholder="Ej: 30123456" maxlength="20">
     </div>
 
     <div class="field">
@@ -87,6 +248,7 @@
 
     <div class="msg" id="msg"></div>
   </div>
+
 
   <div class="card" id="cardOk" style="display:none; text-align:center;">
     <div class="card-title">Datos Enviados</div>
@@ -121,6 +283,13 @@ async function cargarConfig() {
     if (CONFIG.tel)       contacto.push('Tel: ' + CONFIG.tel);
     if (CONFIG.email)     contacto.push(CONFIG.email);
     document.getElementById('ftr-contacto').textContent = contacto.join('  ·  ');
+
+    // Precarga la Ciudad de la Inmobiliaria en los 2 campos de Ciudad (propiedad
+    // y propietario), para ahorrarle tipeo al Asesor - las puede modificar igual
+    if (CONFIG.ciudad) {
+      document.getElementById('ciudad').value = CONFIG.ciudad.toUpperCase();
+      document.getElementById('propCiudad').value = CONFIG.ciudad.toUpperCase();
+    }
   } catch (e) {
     console.warn('No se pudo cargar vendedores_config.json:', e);
   }
@@ -199,12 +368,28 @@ function mostrarMsg(txt, tipo) {
 }
 
 async function subirDatos() {
-  const direccion = document.getElementById('direccion').value.trim();
-  const ciudad    = document.getElementById('ciudad').value.trim();
-  const clave     = document.getElementById('clave').value.trim();
+  const direccion  = document.getElementById('direccion').value.trim();
+  const ciudad     = document.getElementById('ciudad').value.trim();
+  const operacion  = document.getElementById('operacion').value.trim();
+  const barrio     = document.getElementById('barrio').value.trim();
+  const tipologia  = document.getElementById('tipologia').value.trim();
+  const ambientes  = document.getElementById('ambientes').value.trim();
+  const banos      = document.getElementById('banos').value.trim();
+  const precio     = document.getElementById('precio').value.trim();
+  const moneda     = document.getElementById('moneda').value.trim();
+  const clave      = document.getElementById('clave').value.trim();
+  const propNombre    = document.getElementById('propNombre').value.trim();
+  const propDireccion = document.getElementById('propDireccion').value.trim();
+  const propCiudad    = document.getElementById('propCiudad').value.trim();
+  const propMovil      = document.getElementById('propMovil').value.trim();
+  const propDni        = document.getElementById('propDni').value.trim();
 
-  if (!direccion || !ciudad || !clave) {
-    mostrarMsg('Complete Direccion, Ciudad y Clave de Acceso.', 'error');
+  if (!direccion || !ciudad || !operacion || !barrio || !tipologia || !ambientes || !banos || !precio || !clave) {
+    mostrarMsg('Complete todos los datos de la Propiedad y la Clave de Acceso.', 'error');
+    return;
+  }
+  if (!propNombre || !propDireccion || !propCiudad || !propMovil || !propDni) {
+    mostrarMsg('Complete todos los Datos del Propietario.', 'error');
     return;
   }
   if (fotosSeleccionadas.length === 0) {
@@ -230,7 +415,14 @@ async function subirDatos() {
         fotosBase64.push({ nombre: 'foto_' + (i + 1) + '.jpg', base64: b64 });
       }
 
-      const payload = { direccion: direccion, ciudad: ciudad, clave: clave, fotos: fotosBase64 };
+      const payload = {
+        direccion: direccion, ciudad: ciudad, operacion: operacion, barrio: barrio,
+        tipologia: tipologia, ambientes: ambientes, banos: banos, precio: precio, moneda: moneda,
+        clave: clave,
+        propNombre: propNombre, propDireccion: propDireccion, propCiudad: propCiudad,
+        propMovil: propMovil, propDni: propDni,
+        fotos: fotosBase64
+      };
 
       const resp = await fetch(CONFIG.appsScriptUrl, {
         method: 'POST',
