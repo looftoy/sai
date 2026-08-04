@@ -27,10 +27,10 @@
   .field select{width:100%;background:var(--dark3);border:1px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:500;padding:10px 12px;border-radius:2px;outline:none;transition:border-color .2s;letter-spacing:.05em}
   .field select:focus{border-color:var(--gold)}
   .fila-doble{display:grid;grid-template-columns:2fr 1fr;gap:10px}
-  .seccion-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold);letter-spacing:.08em;margin:26px 0 14px;padding-top:18px;border-top:1px solid var(--border)}
+  .seccion-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--gold);letter-spacing:.08em;margin:26px 0 14px;padding-top:18px;border-top:1px solid var(--border)}
 
   .dropzone{border:2px dashed var(--border);background:var(--dark3);border-radius:4px;padding:22px 14px;text-align:center;margin-top:8px}
-  .dropzone p{color:var(--muted);font-size:.7rem;letter-spacing:.05em;margin-bottom:12px}
+  .dropzone p{color:var(--muted);font-size:.8rem;letter-spacing:.05em;margin-bottom:12px}
   .btn-fotos{padding:14px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;cursor:pointer;border-radius:2px;margin-top:8px;transition:background .2s}
   .btn-fotos:hover{background:var(--gold);color:#000}
 
@@ -62,20 +62,27 @@
 <div class="main">
   <div class="card" id="cardForm">
     <div class="card-title">NUEVA PROPIEDAD</div>
-    <div class="card-sub">Complete los datos de la Propiedad</div>
+    <div class="card-sub">Complete todos los datos</div>
 
+    <div class="seccion-title">Clave del Asesor</div>
+    <div class="field">
+      <label>Clave de Acceso <span class="req">*</span></label>
+      <input type="password" id="clave" placeholder="Ingrese su Clave" maxlength="30">
+    </div>
+
+    <div class="seccion-title">Datos de la Propiedad</div>
     <div class="field">
       <label>Direccion <span class="req">*</span></label>
-      <input type="text" id="direccion" placeholder="Ej: Laprida 1423" maxlength="150" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+      <input type="text" id="direccion" placeholder="Direccion" maxlength="150" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()" onchange="document.getElementById('propDireccion').value = this.value">
     </div>
     <div class="field">
       <label>Ciudad <span class="req">*</span></label>
-      <input type="text" id="ciudad" placeholder="Ej: Rosario" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+      <input type="text" id="ciudad" placeholder="Ciudad" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()" onchange="document.getElementById('propCiudad').value = this.value">
     </div>
     <div class="field">
       <label>Operacion <span class="req">*</span></label>
       <select id="operacion">
-        <option value="">Seleccione...</option>
+        <option value="">Seleccione..</option>
         <option value="EN VENTA">EN VENTA</option>
         <option value="EN ALQUILER">EN ALQUILER</option>
         <option value="PREVENTA">PREVENTA</option>
@@ -84,12 +91,12 @@
     </div>
     <div class="field">
       <label>Barrio / Zona <span class="req">*</span></label>
-      <input type="text" id="barrio" placeholder="Ej: Centro" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+      <input type="text" id="barrio" placeholder="Barrio / Zona" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="field">
       <label>Tipologia <span class="req">*</span></label>
       <select id="tipologia">
-        <option value="">Seleccione...</option>
+        <option value="">Seleccione..</option>
         <optgroup label="Departamentos">
           <option value="APTO">APTO</option>
           <option value="APTO ATICO">APTO ATICO</option>
@@ -178,7 +185,7 @@
     <div class="field">
       <label>Ambientes <span class="req">*</span></label>
       <select id="ambientes">
-        <option value="">Seleccione...</option>
+        <option value="">Seleccione..</option>
         <option value="0 DORMITORIO">0 DORMITORIO</option>
         <option value="1 DORMITORIO">1 DORMITORIO</option>
         <option value="2 DORMITORIOS">2 DORMITORIOS</option>
@@ -199,7 +206,7 @@
     <div class="field">
       <label>Precio Pactado <span class="req">*</span></label>
       <div class="fila-doble">
-        <input type="number" id="precio" placeholder="Ej: 95000" min="0" step="1">
+        <input type="number" id="precio" placeholder="Ej: 95000" min="0" step="1000" oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);">
         <select id="moneda">
           <option value="USD">USD</option>
           <option value="ARS">ARS</option>
@@ -207,33 +214,30 @@
         </select>
       </div>
     </div>
-    <div class="field">
-      <label>Clave de Acceso <span class="req">*</span></label>
-      <input type="password" id="clave" placeholder="Ingrese su clave" maxlength="30">
-    </div>
 
     <div class="seccion-title">Datos del Propietario</div>
     <div class="field">
       <label>Nombre <span class="req">*</span></label>
-      <input type="text" id="propNombre" placeholder="Nombre y Apellido" maxlength="120">
+      <input type="text" id="propNombre" placeholder="Nombre y Apellido" maxlength="120" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="field">
       <label>Direccion <span class="req">*</span></label>
-      <input type="text" id="propDireccion" placeholder="Puede ser la misma de la propiedad" maxlength="150" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+      <input type="text" id="propDireccion" placeholder="Direccion" maxlength="150" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="field">
       <label>Ciudad <span class="req">*</span></label>
-      <input type="text" id="propCiudad" placeholder="Puede ser la misma de la propiedad" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
+      <input type="text" id="propCiudad" placeholder="Ciudad" maxlength="80" style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="field">
       <label>Movil <span class="req">*</span></label>
       <input type="tel" id="propMovil" placeholder="Ej: 3415484296" maxlength="20">
     </div>
     <div class="field">
-      <label>DNI <span class="req">*</span></label>
+      <label>DNI <span class="req">*</span><span> (sin puntos)</span></label>
       <input type="text" id="propDni" placeholder="Ej: 30123456" maxlength="20">
     </div>
 
+    <div class="seccion-title">Fotos de la Propiedad</div>
     <div class="field">
       <label>Fotos <span class="req">*</span> (maximo 40)</label>
       <div class="dropzone">
@@ -248,7 +252,6 @@
 
     <div class="msg" id="msg"></div>
   </div>
-
 
   <div class="card" id="cardOk" style="display:none; text-align:center;">
     <div class="card-title">Datos Enviados</div>
