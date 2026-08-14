@@ -146,6 +146,56 @@
 </div>
 
 <script>
+// 1. CAPTURAMOS EL ID DE LA URL (?id=juancito)
+const urlParams = new URLSearchParams(window.location.search);
+const idInmobiliaria = urlParams.get('id') ? urlParams.get('id').toLowerCase().trim() : null;
+
+// 2. FUNCIÓN PARA VALIDAR LA INMOBILIARIA
+function validarInmobiliaria(filasEmpresa) {
+    if (!filasEmpresa || filasEmpresa.length < 2) {
+        mostrarError("Error: No se encontraron datos de la empresa.");
+        return false;
+    }
+
+    const encabezados = filasEmpresa[0]; // Fila de títulos ['nombre', 'web_url', etc.]
+    const valores = filasEmpresa[1];     // Fila de datos reales ['Inmobiliaria X', 'juancito']
+
+    // Buscamos dinámicamente en qué columna cayó 'web_url'
+    const indiceWebUrl = encabezados.indexOf('web_url');
+
+    if (indiceWebUrl === -1) {
+        mostrarError("Error de configuración: El campo web_url no existe en el Sheet.");
+        return false;
+    }
+
+    const webUrlSheet = valores[indiceWebUrl] ? valores[indiceWebUrl].toLowerCase().trim() : "";
+
+    // CONTROL 1: ¿Escribieron el parámetro ?id= en la URL?
+    if (!idInmobiliaria) {
+        mostrarError("Por favor, ingresá usando el enlace completo (ej: web.html?id=nombre).");
+        return false;
+    }
+
+    // CONTROL 2: ¿Coincide el ?id= de la URL con el del Sheet?
+    if (idInmobiliaria !== webUrlSheet) {
+        mostrarError("Sitio web no configurado o ID incorrecto.");
+        return false;
+    }
+
+    console.log("¡Validación exitosa!");
+    return true;
+}
+
+// Función auxiliar para cortar el acceso y limpiar la pantalla estéticamente
+function mostrarError(mensaje) {
+    document.body.innerHTML = `
+        <div style="text-align:center; margin-top:100px; font-family:Arial, sans-serif; padding:20px;">
+            <h2 style="color:#d9534f;">⚠️ Acceso denegado</h2>
+            <p style="color:#555; font-size:18px;">${mensaje}</p>
+        </div>
+    `;
+}
+
 // ── FOTOS POR REF (hardcoded desde Drive) ─────────────────────────────
 // Orden: ref-1, ref-2, ref-3, ref-4 primero, luego el resto hasta 10
 const SINFOTO = 'https://drive.google.com/thumbnail?id=1fPjn8wDpkeMmbGsPG22orKgGR8EAp4l1&sz=w800';
@@ -445,6 +495,12 @@ async function cargarEmpresa(){
     const rows = parseCSV(text);
     if(!rows.length) return;
     const e = rows[0];
+
+    // Nombre de la url elegido por la empresa
+    const urlParams = new URLSearchParams(window.location.search);
+    const idUrl = (urlParams.get('id') || '').toLowerCase().trim();
+    const idSheet = (e.web_url || '').toLowerCase().trim();
+    if (!idUrl || idUrl !== idSheet) { document.body.innerHTML = "<h2 style='text-align:center;margin-top:100px;font-family:sans-serif;'>⚠️ Sitio web no configurado o enlace incorrecto.</h2>"; return; }
 
     // Header
     document.getElementById('page-title').textContent = e.nombre || 'SAI+';
