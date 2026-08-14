@@ -184,8 +184,8 @@ const FOTOS = {
   "114": [d('1cQqvyK8EEScR3AvhhJ-vm-28edfI8Rcy'),d('1HxMj7gk4pjfmyVBJox80i22pFOBpDey4'),d('1_bAmkdyXZwZ8vdZk8-emxGFx_yXjVpUo'),d('1mP1nJgQ3P1xQkO10tKPgQ6QaapCmQTAN'),d('15FSrLA1kR31ppH5JjnDqLbJgHqXthcwU'),d('19VUiLqM4UnnkOlIoSOxVgf0TWKxf701S'),d('1djNhccM_8l46bDe5eXaprodXe-LfX6zU'),d('11KcA_Ai0JpxUCi-UTNAOGtS3NHevHzQp'),d('1jpyGm46DdyRxD3I7_jAis-6c8V8YzZ9s'),d('1LK1zsRt4PMv5Ie9-Qvy-z2yxwGoLUWzO')]
 };
 
-// ── DATOS DESDE CSV ───────────────────────────────────────────────────
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiF6w8XgTuNuvjyr-hobFeQgzo3FhRzndplNQAY9QMWHDpUwf6Ct6yOk09x_S3gYofjNs_f1irzzea/pub?output=csv";
+// ── DATOS DESDE CSV (resueltos dinamicamente segun el slug de la URL) ──
+let CSV_URL = "";
 
 let PROPS = [];
 
@@ -434,13 +434,13 @@ function render(){
 document.getElementById('rbtn').addEventListener('click',()=>cargarCSV());
 
 // ── EMPRESA ────────────────────────────────────────────────────────────
-const EMPRESA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiF6w8XgTuNuvjyr-hobFeQgzo3FhRzndplNQAY9QMWHDpUwf6Ct6yOk09x_S3gYofjNs_f1irzzea/pub?gid=empresa&single=true&output=csv";
+let EMPRESA_URL = "";
 window.EMPRESA_CEL = '';
 
 async function cargarEmpresa(){
   try{
-    // Leer hoja empresa del Sheet
-    const res = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vRiF6w8XgTuNuvjyr-hobFeQgzo3FhRzndplNQAY9QMWHDpUwf6Ct6yOk09x_S3gYofjNs_f1irzzea/pub?gid=303834842&single=true&output=csv&t=${Date.now()}`, {cache:'no-store'});
+    // Leer hoja empresa del Sheet de ESTA inmobiliaria (ya resuelto por slug)
+    const res = await fetch(EMPRESA_URL + (EMPRESA_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const text = await res.text();
     const rows = parseCSV(text);
     if(!rows.length) return;
@@ -485,7 +485,58 @@ async function cargarEmpresa(){
 }
 
 window.limpiarBusqueda = function limpiarBusqueda(){modoDestacadas=true;filtrosActivos=null;render();}
-cargarEmpresa().then(()=>cargarCSV());
+
+// ── RESOLUCION DE INMOBILIARIA POR SLUG (multi-tenant) ──────────────────
+// Tabla maestra (tuya, una sola, no de cada inmo): 3 columnas
+// slug | csv_url | empresa_url - publicada como CSV.
+// PEGAR ACA la URL publicada de esa Sheet maestra:
+const MAPEO_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSXUu3L5qPY0nh73olR4CNASmBW4BK-NEIbQ8y36nFCLFYsOEqZNN9WZKDGlnuCxVyjJPTVHN1ouWoz/pub?output=csv";
+
+function obtenerSlugDeUrl(){
+  const partes = window.location.pathname.split('/').filter(Boolean);
+  // Saco el primer segmento (nombre del repo/carpeta, ej "sai") y cualquier
+  // segmento que sea el nombre de archivo servido (web.html / 404.html)
+  const resto = partes.slice(1).filter(p => !/\.html?$/i.test(p));
+  return (resto[0] || '').trim().toLowerCase();
+}
+
+async function resolverInmobiliaria(){
+  const slug = obtenerSlugDeUrl();
+  if(!slug) return false;
+  try{
+    const res = await fetch(MAPEO_URL + (MAPEO_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const text = await res.text();
+    const filas = parseCSV(text);
+    const fila = filas.find(f => (f.slug || '').trim().toLowerCase() === slug);
+    if(!fila || !fila.csv_url || !fila.empresa_url) return false;
+    CSV_URL = fila.csv_url;
+    EMPRESA_URL = fila.empresa_url;
+    return true;
+  }catch(err){
+    console.warn('No se pudo resolver la inmobiliaria:', err);
+    return false;
+  }
+}
+
+function mostrarInmobiliariaNoEncontrada(){
+  document.querySelector('.header').style.display = 'none';
+  document.getElementById('filters').style.display = 'none';
+  document.querySelector('.bar').style.display = 'none';
+  document.getElementById('titulo-modo').style.display = 'none';
+  document.querySelector('.footer').style.display = 'none';
+  document.getElementById('grid').innerHTML = '';
+  document.getElementById('nores').textContent = 'Esta inmobiliaria no está disponible.';
+  document.getElementById('nores').style.display = 'block';
+  document.title = 'SAI+';
+}
+
+resolverInmobiliaria().then(function(encontrada){
+  if(encontrada){
+    cargarEmpresa().then(()=>cargarCSV());
+  } else {
+    mostrarInmobiliariaNoEncontrada();
+  }
+});
 
 // ── BUSCADOR ────────────────────────────────────────────────────────────
 const TIPO_MAP_B={"APTO": "APARTAMENTO", "APTO ATICO": "APARTAMENTO", "APTO BAJOS": "APARTAMENTO", "APTO DUPLEX": "APARTAMENTO", "APTO ESCALERA": "APARTAMENTO", "APTO EXCLUSIVO": "APARTAMENTO", "APTO HABITACION": "APARTAMENTO", "APTO LOFT": "APARTAMENTO", "APTO PASILLO": "APARTAMENTO", "APTO PISO": "APARTAMENTO", "APTO SEMIPISO": "APARTAMENTO", "APTO VACACIONES": "APARTAMENTO", "CASA": "CASA", "CASA ADOSADA": "CASA", "CASA CABAÑA": "CASA", "CASA CAMPO": "CASA", "CASA CHALET": "CASA", "CASA CON GALPON": "CASA", "CASA CON LOCAL": "CASA", "CASA CONTAINER": "CASA", "CASA COUNTRY": "CASA", "CASA HABITACION": "CASA", "CASA INTERNA": "CASA", "CASA MASIA": "CASA", "CASA MINIMALISTA": "CASA", "CASA MONTAÑA": "CASA", "CASA PAREADA": "CASA", "CASA PASIILLO": "CASA", "CASA PLANTA ALTA": "CASA", "CASA PLANTA BAJA": "CASA", "CASA PREFABRICADA": "CASA", "CASA TORRE": "CASA", "CASA VACACIONES": "CASA", "CASA VILLA": "CASA", "CAMPO": "TERRENO", "CAMPO AGRICOLA": "TERRENO", "CAMPO GANADERO": "TERRENO", "CAMPO MIXTO": "TERRENO", "CHACRA": "TERRENO", "ESTANCIA": "TERRENO", "FRACCION": "TERRENO", "LOTE": "TERRENO", "LOTEO": "TERRENO", "PARCELA": "TERRENO", "SOLAR": "TERRENO", "TERRENO": "TERRENO", "FONDO COMERCIO": "LOCAL", "LOCAL": "LOCAL", "SALON": "LOCAL", "TRASPASO COMERCIO": "LOCAL", "OFICINA": "OFICINA", "CABAÑAS": "EDIFICIO", "EDIFICIO": "EDIFICIO", "HABITACION": "EDIFICIO", "HOSTEL": "EDIFICIO", "HOTEL": "EDIFICIO", "HOTEL APART": "EDIFICIO", "MOTEL": "EDIFICIO", "GALPON": "GALPON", "NAVE INDUSTRIAL": "GALPON", "PLANTA INDUSTRIAL": "GALPON", "COCHERA": "GARAJE", "GARAJE": "GARAJE", "PARKING": "GARAJE", "OTROS": "OTROS"};
