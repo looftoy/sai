@@ -320,18 +320,39 @@ function obtenerSlugDeUrl(){
   return (resto[0] || '').trim().toLowerCase();
 }
 
+// Google a veces demora/cuelga al servir un CSV publicado. Este helper
+// pone un limite de espera y reintenta una vez sola antes de rendirse,
+// para que la pagina no quede "tildada" esperando para siempre.
+async function fetchConReintento(url, opciones, intentos = 2, timeoutMs = 9000){
+  let ultimoError;
+  for(let i = 0; i < intentos; i++){
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try{
+      const res = await fetch(url, Object.assign({}, opciones, {signal: ctrl.signal}));
+      clearTimeout(t);
+      return res;
+    }catch(err){
+      clearTimeout(t);
+      ultimoError = err;
+      if(i < intentos - 1) await new Promise(r => setTimeout(r, 700));
+    }
+  }
+  throw ultimoError;
+}
+
 async function cargarConfig() {
   const slug = obtenerSlugDeUrl();
   if(!slug){ mostrarInmobiliariaNoEncontrada(); return; }
   try {
     // 1) Busco la fila de esta inmobiliaria en la tabla maestra
-    const resMapeo = await fetch(MAPEO_URL + (MAPEO_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const resMapeo = await fetchConReintento(MAPEO_URL + (MAPEO_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const filas = parseCSV(await resMapeo.text());
     const fila = filas.find(f => (f.slug || '').trim().toLowerCase() === slug);
     if(!fila || !fila.empresa_url || !fila.apps_script_url){ mostrarInmobiliariaNoEncontrada(); return; }
 
     // 2) Leo los datos de Empresa de ESA inmobiliaria (mismo Sheet que usa web.html)
-    const resEmp = await fetch(fila.empresa_url + (fila.empresa_url.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const resEmp = await fetchConReintento(fila.empresa_url + (fila.empresa_url.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const filasEmp = parseCSV(await resEmp.text());
     const datosEmp = filasEmp[0] || {};
 
