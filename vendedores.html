@@ -274,10 +274,76 @@ const TANDA = 6;
 const MAX_LADO = 1600;   // redimensionamos las fotos a este lado maximo
 const CALIDAD_JPG = 0.75;
 
+function parseCSV(csv){
+  csv = csv.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  const results=[], lines=[];
+  let cur='', inQ=false;
+  for(let i=0;i<csv.length;i++){
+    const c=csv[i];
+    if(c==='"'){ inQ=!inQ; }
+    else if(c==='\n'&&!inQ){ lines.push(cur); cur=''; }
+    else cur+=c;
+  }
+  if(cur) lines.push(cur);
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  for(let i=1;i<lines.length;i++){
+    const line=lines[i]; if(!line.trim()) continue;
+    const values=[], chars=line.split('');
+    let val='', q=false;
+    for(let j=0;j<chars.length;j++){
+      const c=chars[j];
+      if(c==='"'){ q=!q; }
+      else if(c===','&&!q){ values.push(val.trim()); val=''; }
+      else val+=c;
+    }
+    values.push(val.trim());
+    const obj={};
+    headers.forEach((h,k)=>obj[h]=values[k]||'');
+    results.push(obj);
+  }
+  return results;
+}
+
+// Tabla maestra (misma que usa web.html): slug | csv_url | empresa_url | apps_script_url | cupones_folder_id
+const MAPEO_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSXUu3L5qPY0nh73olR4CNASmBW4BK-NEIbQ8y36nFCLFYsOEqZNN9WZKDGlnuCxVyjJPTVHN1ouWoz/pub?output=csv";
+
+function obtenerSlugDeUrl(){
+  const porQuery = new URLSearchParams(window.location.search).get('_slug');
+  if(porQuery){
+    const partes = window.location.pathname.split('/').filter(Boolean);
+    const base = '/' + (partes[0] || '') + '/';
+    try{ history.replaceState(null, '', base + porQuery.trim().toLowerCase() + '/vendedores.html'); }catch(e){}
+    return porQuery.trim().toLowerCase();
+  }
+  const partes = window.location.pathname.split('/').filter(Boolean);
+  const resto = partes.slice(1).filter(p => !/\.html?$/i.test(p));
+  return (resto[0] || '').trim().toLowerCase();
+}
+
 async function cargarConfig() {
+  const slug = obtenerSlugDeUrl();
+  if(!slug){ mostrarInmobiliariaNoEncontrada(); return; }
   try {
-    const r = await fetch('vendedores_config.json?t=' + Date.now());
-    CONFIG = await r.json();
+    // 1) Busco la fila de esta inmobiliaria en la tabla maestra
+    const resMapeo = await fetch(MAPEO_URL + '?t=' + Date.now(), {cache:'no-store'});
+    const filas = parseCSV(await resMapeo.text());
+    const fila = filas.find(f => (f.slug || '').trim().toLowerCase() === slug);
+    if(!fila || !fila.empresa_url || !fila.apps_script_url){ mostrarInmobiliariaNoEncontrada(); return; }
+
+    // 2) Leo los datos de Empresa de ESA inmobiliaria (mismo Sheet que usa web.html)
+    const resEmp = await fetch(fila.empresa_url + (fila.empresa_url.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const filasEmp = parseCSV(await resEmp.text());
+    const datosEmp = filasEmp[0] || {};
+
+    CONFIG = {
+      nombre: datosEmp.nombre || '',
+      direccion: datosEmp.direccion || '',
+      tel: datosEmp.tel || '',
+      email: datosEmp.email || '',
+      ciudad: datosEmp.ciudad || '',
+      appsScriptUrl: fila.apps_script_url
+    };
+
     document.getElementById('hdr-nombre').textContent = CONFIG.nombre || 'SAI+';
     document.getElementById('hdr-sub').textContent = 'Portal de Asesores';
     document.title = (CONFIG.nombre || 'SAI+') + ' — Portal de Asesores';
@@ -294,8 +360,16 @@ async function cargarConfig() {
       document.getElementById('propCiudad').value = CONFIG.ciudad.toUpperCase();
     }
   } catch (e) {
-    console.warn('No se pudo cargar vendedores_config.json:', e);
+    console.warn('No se pudo resolver la inmobiliaria:', e);
+    mostrarInmobiliariaNoEncontrada();
   }
+}
+
+function mostrarInmobiliariaNoEncontrada(){
+  document.querySelector('.header').style.display = 'none';
+  document.querySelector('.main').innerHTML = '<div style="text-align:center;padding:60px 24px;color:var(--muted);font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;">Esta inmobiliaria no está disponible.</div>';
+  document.querySelector('.footer').style.display = 'none';
+  document.title = 'SAI+';
 }
 
 document.getElementById('inputFotos').addEventListener('change', function () {
