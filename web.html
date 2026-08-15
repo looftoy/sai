@@ -493,9 +493,17 @@ window.limpiarBusqueda = function limpiarBusqueda(){modoDestacadas=true;filtrosA
 const MAPEO_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSXUu3L5qPY0nh73olR4CNASmBW4BK-NEIbQ8y36nFCLFYsOEqZNN9WZKDGlnuCxVyjJPTVHN1ouWoz/pub?output=csv";
 
 function obtenerSlugDeUrl(){
+  // 1) Si vino redirigido desde 404.html, el slug llega por query string
+  const porQuery = new URLSearchParams(window.location.search).get('_slug');
+  if(porQuery){
+    // Restauro la URL linda en la barra de direcciones (sin recargar)
+    const partes = window.location.pathname.split('/').filter(Boolean);
+    const base = '/' + (partes[0] || '') + '/';
+    try{ history.replaceState(null, '', base + porQuery.trim().toLowerCase() + '/web.html'); }catch(e){}
+    return porQuery.trim().toLowerCase();
+  }
+  // 2) Si no, lo busco directo en el path (acceso ya resuelto)
   const partes = window.location.pathname.split('/').filter(Boolean);
-  // Saco el primer segmento (nombre del repo/carpeta, ej "sai") y cualquier
-  // segmento que sea el nombre de archivo servido (web.html / 404.html)
   const resto = partes.slice(1).filter(p => !/\.html?$/i.test(p));
   return (resto[0] || '').trim().toLowerCase();
 }
