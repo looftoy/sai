@@ -253,11 +253,32 @@ function mapRow(r){
 
 const FOTOS_MAP = {};
 
+// Google a veces demora/cuelga al servir un CSV publicado. Este helper
+// pone un limite de espera y reintenta una vez sola antes de rendirse,
+// para que la pagina no quede "tildada" esperando para siempre.
+async function fetchConReintento(url, opciones, intentos = 2, timeoutMs = 9000){
+  let ultimoError;
+  for(let i = 0; i < intentos; i++){
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try{
+      const res = await fetch(url, Object.assign({}, opciones, {signal: ctrl.signal}));
+      clearTimeout(t);
+      return res;
+    }catch(err){
+      clearTimeout(t);
+      ultimoError = err;
+      if(i < intentos - 1) await new Promise(r => setTimeout(r, 700));
+    }
+  }
+  throw ultimoError;
+}
+
 async function cargarCSV(){
   const grid=document.getElementById('grid');
   grid.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:40px;color:#4D9C00;letter-spacing:.2em;font-size:1rem;font-weight:700">CARGANDO PROPIEDADES...</p>';
   try{
-    const res=await fetch(CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const res=await fetchConReintento(CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const text=await res.text();
     const rows=parseCSV(text);
     PROPS=rows.map(mapRow).filter(p=>p.ref&&p.ref!=='9999');
@@ -440,7 +461,7 @@ window.EMPRESA_CEL = '';
 async function cargarEmpresa(){
   try{
     // Leer hoja empresa del Sheet de ESTA inmobiliaria (ya resuelto por slug)
-    const res = await fetch(EMPRESA_URL + (EMPRESA_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const res = await fetchConReintento(EMPRESA_URL + (EMPRESA_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const text = await res.text();
     const rows = parseCSV(text);
     if(!rows.length) return;
@@ -512,7 +533,7 @@ async function resolverInmobiliaria(){
   const slug = obtenerSlugDeUrl();
   if(!slug) return false;
   try{
-    const res = await fetch(MAPEO_URL + (MAPEO_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+    const res = await fetchConReintento(MAPEO_URL + (MAPEO_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const text = await res.text();
     const filas = parseCSV(text);
     const fila = filas.find(f => (f.slug || '').trim().toLowerCase() === slug);
