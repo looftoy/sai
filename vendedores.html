@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portal de Asesores</title>
-<link rel="icon" href="sai.ico" type="image/x-icon">
+<link rel="icon" href="/sai/sai.ico" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{--gold:#c9a84c;--dark:#0e0e0e;--dark2:#1a1a1a;--dark3:#242424;--border:#333;--text:#e8e8e8;--muted:#888;--green:#3fae6a;}
@@ -325,7 +325,7 @@ async function cargarConfig() {
   if(!slug){ mostrarInmobiliariaNoEncontrada(); return; }
   try {
     // 1) Busco la fila de esta inmobiliaria en la tabla maestra
-    const resMapeo = await fetch(MAPEO_URL + '?t=' + Date.now(), {cache:'no-store'});
+    const resMapeo = await fetch(MAPEO_URL + (MAPEO_URL.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
     const filas = parseCSV(await resMapeo.text());
     const fila = filas.find(f => (f.slug || '').trim().toLowerCase() === slug);
     if(!fila || !fila.empresa_url || !fila.apps_script_url){ mostrarInmobiliariaNoEncontrada(); return; }
