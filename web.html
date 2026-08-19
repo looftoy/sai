@@ -422,7 +422,9 @@ function render(){
                   const pxLabel = pxMap[p.preciox]||null;
                   const preventaLabels=['OBRA NUEVA','EN POZO','EN OBRA','FINALIZADO'];
                   const extra = p.preciox === 'REBAJADO' || p.preciox === 'RETASADO';
-                    ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#ff1744;display:inline-block">${p.preciox === 'REBAJADO' ? 'REBAJADO' : 'RETASADO'}</span>`
+                    ? (p.preciox === 'REBAJADO' 
+                    ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#ff1744;display:inline-block">REBAJADO</span>`
+                    : `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#ff1744;display:inline-block">RETASADO</span>`)
                     : pxLabel ? `<span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#39ff14;display:inline-block">${pxLabel}</span>`
                     : (p.op==='PREVENTA'&&preventaLabels.includes(p.ocup)) ? `<span style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#39ff14;display:inline-block">${p.ocup}</span>` : '';
                   return `<span class="pa"><span style="font-size:1rem;vertical-align:middle">${p.moneda}</span> ${fp(p.precio)}</span>${extra?' '+extra:''}`;
