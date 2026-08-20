@@ -13,7 +13,7 @@
 // slug (ej: /sai/loofrentals/web.html) no existe como carpeta real,
 // asi que GitHub sirve este archivo en su lugar. Aca detectamos que
 // pagina se pidio y con que slug, y redirigimos al archivo real
-// (web.html / vendedores.html / cupones.html) pasandole el slug por
+// (web.html / asesores.html / cupones.html) pasandole el slug por
 // query string, que es lo unico que esos archivos necesitan leer.
 // ================================================================
 (function () {
@@ -25,7 +25,7 @@
   var slugPartes = resto;
   if (resto.length && /\.html?$/i.test(resto[resto.length - 1])) {
     var ultimo = resto[resto.length - 1].toLowerCase();
-    if (ultimo === 'vendedores.html') archivo = 'vendedores.html';
+    if (ultimo === 'asesores.html') archivo = 'asesores.html';
     else if (ultimo === 'cupones.html') archivo = 'cupones.html';
     else archivo = 'web.html';
     slugPartes = resto.slice(0, -1);
