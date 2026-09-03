@@ -350,6 +350,7 @@ function render(){
   const filtered=PROPS.filter(p=>{
     if(p.ref==='9999') return false;
     if(!OPS_VALIDAS.includes(p.op)) return false;
+    if(p.preciox==='* RESERVADO' || p.preciox==='* SUSPENDIDO') return false;
 
     // Modo destacadas: solo las marcadas
     if(modoDestacadas) return p.destaca.toUpperCase()==='SI'||p.destaca.toLowerCase()==='si';
