@@ -619,7 +619,68 @@ function abrirVisor(items, idx){
     ? { src: `https://www.youtube.com/watch?v=${it.id}`, type: 'youtube' }
     : { src: it.url, type: 'image' }
   );
-  Fancybox.show(fbItems, { startIndex: idx, Carousel: { Autoplay: true } });
+  Fancybox.show(fbItems, {
+    startIndex: idx,
+    Carousel: { Autoplay: true },
+    on: {
+      // Si el Autoplay llega a un video de YouTube, frena el Slideshow
+      // entero y espera a que el video termine de verdad (con aviso propio
+      // via postMessage, mas el comando para que arranque solo) antes de
+      // pasar a la siguiente foto.
+      'Carousel.change': function (fancybox, carousel, to) {
+        const slide = carousel.slides[to];
+        // OJO: Slideshow no cuelga directo de fancybox.plugins - vive
+        // adentro del plugin Toolbar.
+        const Slideshow = fancybox.plugins && fancybox.plugins.Toolbar && fancybox.plugins.Toolbar.Slideshow;
+        if (!slide || !Slideshow) return;
+
+        if (slide.type === 'video' && slide.vendor === 'youtube') {
+          // clearTimer() sola no alcanza - la libreria tiene un mecanismo
+          // interno que vuelve a armar el cronometro solo apenas el slide
+          // "termina de cargar", pisando el clearTimer casi al instante.
+          // Por eso hay que desactivar el Slideshow entero mientras dura
+          // el video, y reactivarlo recien cuando termina.
+          const estabaActivo = Slideshow.isActive();
+          if (estabaActivo) {
+            Slideshow.deactivate();
+          }
+
+          const onMensajeYoutube = function (e) {
+            let datos;
+            try { datos = JSON.parse(e.data); } catch (err) { return; }
+            if (datos.event === 'infoDelivery' && datos.info && datos.info.playerState === 0) {
+              window.removeEventListener('message', onMensajeYoutube);
+              if (estabaActivo) {
+                Slideshow.activate();
+                fancybox.next();
+              }
+            }
+          };
+          window.addEventListener('message', onMensajeYoutube);
+
+          // YouTube no avisa cambios de estado espontaneamente - hay que
+          // pedirselo primero al iframe con un mensaje, y de paso le
+          // mandamos el comando para que arranque el video solo.
+          const pedirAvisosYoutube = function () {
+            if (slide.$iframe && slide.$iframe.contentWindow) {
+              slide.$iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'listening', id: 1 }), '*'
+              );
+              slide.$iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }), '*'
+              );
+              slide.$iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func: 'playVideo' }), '*'
+              );
+            } else {
+              setTimeout(pedirAvisosYoutube, 300);
+            }
+          };
+          pedirAvisosYoutube();
+        }
+      }
+    }
+  });
 }
 
 </script>
