@@ -420,7 +420,7 @@ function render(){
             ${p.preciox==='DESDE'
               ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#39ff14;display:inline-block">DESDE</span> <span class="pa"><span style="font-size:1rem;vertical-align:middle">${p.moneda}</span> ${fp(p.precio)}</span>`
               : p.preciox==='CONSULTAR'
-              ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#1A8CFF;display:inline-block">CONSULTE PRECIO</span>`
+              ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#FFD700;display:inline-block">CONSULTE PRECIO</span>`
               : (()=>{
                   const pxMap={'X DIA':'POR DIA','X SEMANA':'POR SEMANA','X QUINCENA':'POR QUINCENA','X MES':'POR MES','POR MES':'POR MES','X AÑO':'POR AÑO','POR AÑO':'POR AÑO'};
                   const pxLabel = pxMap[p.preciox]||null;
