@@ -294,8 +294,8 @@ async function cargarCSV(esperarEmpresa){
 }
 
 // ── COLORES POR OPERACION / CATEGORIA ─────────────────────────────────
-const OP_COLOR = {"EN VENTA":"#4a7fa5","PREVENTA":"#4a7fa5","EN ALQUILER":"#2e7d32","TEMPORADA":"#2e7d32","VENDIDO":"#c62828","ALQUILADO":"#c62828","SUSPENDIDO":"#6a1b9a","RESERVADO":"#6a1b9a"};
-const CAT_COLOR = {"LUXURY":"#b8860b","SUPERIOR":"#4a7fa5","ESTANDAR":"#5a8a5a"};
+const OP_COLOR = {"EN VENTA":"#5564EB","PREVENTA":"#5564EB","EN ALQUILER":"#009900","TEMPORADA":"#009900","VENDIDO":"#c62828","ALQUILADO":"#c62828","SUSPENDIDO":"#6a1b9a","RESERVADO":"#6a1b9a"};
+const CAT_COLOR = {"LUXURY":"#DC9609","SUPERIOR":"#5564EB","ESTANDAR":"#009900"};
 
 // ── ESTADO ────────────────────────────────────────────────────────────
 const GS = {}; // gallery state
@@ -420,7 +420,7 @@ function render(){
             ${p.preciox==='DESDE'
               ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#39ff14;display:inline-block">DESDE</span> <span class="pa"><span style="font-size:1rem;vertical-align:middle">${p.moneda}</span> ${fp(p.precio)}</span>`
               : p.preciox==='CONSULTAR'
-              ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#39ff14;display:inline-block">CONSULTE PRECIO</span>`
+              ? `<span style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#5564EB;display:inline-block">CONSULTE PRECIO</span>`
               : (()=>{
                   const pxMap={'X DIA':'POR DIA','X SEMANA':'POR SEMANA','X QUINCENA':'POR QUINCENA','X MES':'POR MES','POR MES':'POR MES','X AÑO':'POR AÑO','POR AÑO':'POR AÑO'};
                   const pxLabel = pxMap[p.preciox]||null;
